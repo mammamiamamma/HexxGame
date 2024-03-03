@@ -6,19 +6,22 @@
 #define MENU_H
 
 #include <SFML/Graphics.hpp>
+#include "Application.h"
 
 class Menu {
 public:
-    Menu(sf::RenderWindow &window, sf::Font &font, sf::RectangleShape &bg);
-
+    Menu(sf::Font &font, Application& app);
     void runMenu();
+    bool isFirstPage = true;
+    bool isLastPage = false;
+    bool isButtonNeeded = false;
 
 private:
-    sf::RenderWindow& window;
+    Application& app;
     sf::Font& font;
-    sf::RectangleShape background;
+    std::vector<sf::RectangleShape> controlButtons;
+    std::vector<sf::Text> controlButtonsText;
 
-    void drawMenu(const std::vector<sf::RectangleShape>& buttArr, const std::vector<sf::Text>& textArr);
     int launchNewGameMenu();
     int launchLoadGameMenu();
     static std::vector<std::string> getFileNames();
@@ -27,21 +30,17 @@ private:
     * the function below initializes the game with a bot
     * @return 0 if the game is over
     */
-    void playwithbot();
+    int playwithbot();
     /**
     * the function below initializes the game with another player
     * @return 0 if the game is over
     */
-    void playwithhuman();
+    int playwithhuman();
     int launchMenu();
 
     std::vector<sf::Text> getTextForButton(const std::string& filename);
 
-    void drawButton(const sf::RectangleShape& b, const sf::Text& text);
-
-    void drawMenu(const std::vector<sf::RectangleShape> &buttArr, const std::vector<sf::Text> &textArr, int pageNum);
-
-    int loadGame();
+    static int loadGame();
 };
 
 #endif // MENU_H

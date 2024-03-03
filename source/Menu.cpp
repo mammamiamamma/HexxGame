@@ -8,12 +8,7 @@
 #include <iostream>
 #include <fstream>
 
-bool isFirstPage = true;
-bool isLastPage = false;
-bool isButtonNeeded = false;
 
-vector<sf::RectangleShape> controlButtons;
-vector<sf::Text> controlButtonsText;
 string totalPagesStr;
 string selectedFile = "nofile";
 
@@ -28,13 +23,13 @@ Stone currStone;
 //-------
 
 namespace fs = std::filesystem;
-Menu::Menu(sf::RenderWindow& window, sf::Font& font, sf::RectangleShape& bg)
-        : window(window), font(font), background(bg) {
-}
+
+Menu::Menu(sf::Font& font, Application& app)
+        : font(font), app(app) {}
 
 void Menu::runMenu() {
     if (launchMenu() == -1) {
-        window.close();
+        app.window.close();
     }
 }
 
@@ -61,9 +56,9 @@ int Menu::launchMenu() {
     loadGameButton.setFillColor(sf::Color(0,0,0,192));
     exitButton.setFillColor(sf::Color(0,0,0,192));
 
-    newGameButton.setPosition({static_cast<float>(window.getSize().x / 2 - newGameButton.getSize().x / 2), static_cast<float>(100)});
-    loadGameButton.setPosition({static_cast<float>(window.getSize().x / 2 - loadGameButton.getSize().x / 2), static_cast<float>(100 + window.getSize().y / 3)});
-    exitButton.setPosition({static_cast<float>(window.getSize().x / 2 - exitButton.getSize().x/2), static_cast<float>(100+2*window.getSize().y / 3)});
+    newGameButton.setPosition({static_cast<float>(app.window.getSize().x / 2 - newGameButton.getSize().x / 2), static_cast<float>(100)});
+    loadGameButton.setPosition({static_cast<float>(app.window.getSize().x / 2 - loadGameButton.getSize().x / 2), static_cast<float>(100 + app.window.getSize().y / 3)});
+    exitButton.setPosition({static_cast<float>(app.window.getSize().x / 2 - exitButton.getSize().x/2), static_cast<float>(100+2*app.window.getSize().y / 3)});
 
     sf::Text newGameText(font, "NEW GAME", 50);
     sf::Text loadGameText(font, "LOAD GAME", 50);
@@ -82,18 +77,18 @@ int Menu::launchMenu() {
     textArr.push_back(exitText);
 
     restart:
-    drawMenu(buttArr, textArr);
+    app.drawMenu(buttArr, textArr);
     int ind = -1;
     int lastButtonIndex = -1;
-    bool isInButton = false;
+    bool isInButton;
     {
         sf::Event event{};
         sf::Vector2f translated_pos;
-        while (window.isOpen()) {
-            while (window.pollEvent(event)) {
+        while (app.window.isOpen()) {
+            while (app.window.pollEvent(event)) {
                 switch (event.type) {
                     case sf::Event::MouseButtonPressed:
-                        translated_pos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+                        translated_pos = app.window.mapPixelToCoords(sf::Mouse::getPosition(app.window));
                         for (int i = 0; i < buttArr.size(); i++) {
                             if (buttArr[i].getGlobalBounds().contains(translated_pos)) {
                                 ind = i;
@@ -102,18 +97,18 @@ int Menu::launchMenu() {
                         }
                         break;
                     case sf::Event::Resized:
-                        drawMenu(buttArr, textArr);
+                        app.drawMenu(buttArr, textArr);
                         break;
                     case sf::Event::Closed:
                         return -1;
                     case sf::Event::MouseMoved:
-                        translated_pos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+                        translated_pos = app.window.mapPixelToCoords(sf::Mouse::getPosition(app.window));
                         for (int i = 0; i < buttArr.size(); i++) {
                             if (buttArr[i].getGlobalBounds().contains(translated_pos)) {
                                 buttArr[i].setFillColor(sf::Color(100,100,100,192));
                                 lastButtonIndex = i;
                                 isInButton = true;
-                                drawMenu(buttArr, textArr);
+                                app.drawMenu(buttArr, textArr);
                                 goto skipisInButton;
                             }
                         }
@@ -122,7 +117,7 @@ int Menu::launchMenu() {
                         if (!isInButton && lastButtonIndex!=-1) {
                             buttArr[lastButtonIndex].setFillColor(sf::Color(0,0,0,192));
                             lastButtonIndex = -1;
-                            drawMenu(buttArr, textArr);
+                            app.drawMenu(buttArr, textArr);
                         }
                     default:
                         break;
@@ -134,10 +129,10 @@ int Menu::launchMenu() {
     buttArr[lastButtonIndex].setFillColor(sf::Color(0,0,0,192));
     switch (ind){
         case 0:
-            window.clear();
-            switch (launchNewGameMenu()){
-                case 1: playwithhuman();
-                case 2: playwithbot();
+            app.window.clear();
+            switch (launchNewGameMenu()){ //i didnt want to go too deep into recursion so tried to do it this way, but maybe its not that bad.
+//                case 1: playwithhuman();
+//                case 2: playwithbot();
                 case -1: {
                     goto restart;
                 }
@@ -176,53 +171,6 @@ int Menu::launchMenu() {
     return 0;
 }
 
-void Menu::drawMenu(const std::vector<sf::RectangleShape>& buttArr, const std::vector<sf::Text>& textArr) {
-    window.clear();
-    window.draw(background);
-    for (const auto& button : buttArr) {
-        window.draw(button);
-    }
-    for (const auto& text : textArr) {
-        window.draw(text);
-    }
-    window.display();
-}
-
-void Menu::drawMenu(const std::vector<sf::RectangleShape>& buttArr, const std::vector<sf::Text>& textArr, int pageNum) {
-    stringstream ss;
-    ss << pageNum+1;
-    string pageStr;
-    ss >> pageStr;
-    window.clear();
-    window.draw(background);
-    window.draw(buttArr[0]);
-
-    for (int i = 1 + pageNum*5, j = i; i<j+5 && i<buttArr.size(); i++){
-        window.draw(buttArr[i]);
-    }
-    for (int i = pageNum*30, j = i; i<j+30 && i<textArr.size(); i++){
-        window.draw(textArr[i]);
-    }
-    sf::Text savefilestext(font, "SAVE FILES", 30);
-    savefilestext.setPosition({static_cast<float>(window.getSize().x/2-255/2),80});
-    window.draw(savefilestext);
-    sf::Text pageIndexText(font, "PAGE "+pageStr + " OF " + totalPagesStr, 30);
-    pageIndexText.setPosition({static_cast<float>(window.getSize().x/2-255/2),static_cast<float>(window.getSize().y-70)});
-    window.draw(pageIndexText);
-
-    drawButton(controlButtons[0], controlButtonsText[0]);
-
-    if (isButtonNeeded) {
-        if (!isLastPage) drawButton(controlButtons[2], controlButtonsText[2]);
-        if (!isFirstPage) drawButton(controlButtons[1], controlButtonsText[1]);
-    }
-    window.display();
-}
-
-void Menu::drawButton(const sf::RectangleShape& b, const sf::Text& text) {
-    window.draw(b);
-    window.draw(text);
-}
 vector<string> Menu::getFileNames(){
     vector<string> filenames;
     string path = "saves/";
@@ -316,7 +264,7 @@ int Menu::launchLoadGameMenu(){
 
     sf::RectangleShape saveWindow;
     saveWindow.setSize({740,870});
-    saveWindow.setPosition({window.getSize().x/2-saveWindow.getSize().x/2, 130});
+    saveWindow.setPosition({app.window.getSize().x/2-saveWindow.getSize().x/2, 130});
     saveWindow.setOutlineThickness(5);
     saveWindow.setOutlineColor(sf::Color::Cyan);
     saveWindow.setFillColor(sf::Color(0,0,0,192));
@@ -328,7 +276,7 @@ int Menu::launchLoadGameMenu(){
         button.setOutlineThickness(5);
         button.setOutlineColor(sf::Color::White);
         button.setFillColor(sf::Color(0,0,0,192));
-        button.setPosition({static_cast<float>(window.getSize().x / 2 - button.getSize().x / 2), static_cast<float>(150+ 170*(i%5))});
+        button.setPosition({static_cast<float>(app.window.getSize().x / 2 - button.getSize().x / 2), static_cast<float>(150+ 170*(i%5))});
         buttArr.push_back(button);
 
         vector<sf::Text> buttonText = getTextForButton(filenames[i]);
@@ -349,14 +297,13 @@ int Menu::launchLoadGameMenu(){
 
     sf::RectangleShape backButton;
     backButton.setSize({300,100});
-    backButton.setPosition({50, static_cast<float>(window.getSize().y-80-100)});
+    backButton.setPosition({50, static_cast<float>(app.window.getSize().y-80-100)});
     backButton.setOutlineThickness(5);
     backButton.setOutlineColor(sf::Color::White);
     backButton.setFillColor(sf::Color(0,0,0,192));
 
     sf::Text backText(font, "BACK", 40);
     backText.setPosition({static_cast<float>(backButton.getPosition().x+backButton.getSize().x/2-80), static_cast<float>(backButton.getPosition().y+backButton.getSize().y/2-30)});
-
 
     controlButtons.push_back(backButton);
     controlButtonsText.push_back(backText);
@@ -367,8 +314,8 @@ int Menu::launchLoadGameMenu(){
         sf::RectangleShape nextButton;
         prevButton.setSize({300,100});
         nextButton.setSize({300,100});
-        prevButton.setPosition({static_cast<float>(window.getSize().x/2-700), window.getSize().y/2-prevButton.getSize().y/2});
-        nextButton.setPosition({static_cast<float>(window.getSize().x/2+400), window.getSize().y/2-prevButton.getSize().y/2});
+        prevButton.setPosition({static_cast<float>(app.window.getSize().x/2-700), app.window.getSize().y/2-prevButton.getSize().y/2});
+        nextButton.setPosition({static_cast<float>(app.window.getSize().x/2+400), app.window.getSize().y/2-prevButton.getSize().y/2});
         prevButton.setOutlineThickness(5);
         nextButton.setOutlineThickness(5);
         prevButton.setOutlineColor(sf::Color::White);
@@ -398,15 +345,17 @@ int Menu::launchLoadGameMenu(){
         ss << totalPages+1;
         ss >> totalPagesStr;
     }
-    drawMenu(buttArr, textArr, pageNum);
-    while (window.isOpen()){
-        while (window.pollEvent(event)){
+    app.drawMenu(buttArr, textArr, controlButtons, controlButtonsText, font, pageNum, totalPagesStr, isFirstPage,
+            isLastPage,
+            isButtonNeeded);
+    while (app.window.isOpen()){
+        while (app.window.pollEvent(event)){
             switch (event.type){
                 case sf::Event::Closed:{
                     std::exit(1);
                 }
                 case sf::Event::MouseButtonPressed:{
-                    translated_pos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+                    translated_pos = app.window.mapPixelToCoords(sf::Mouse::getPosition(app.window));
                     for (int i = 1 + pageNum*5, j = i; i<j+5 && i<buttArr.size(); i++){
                         if (buttArr[i].getGlobalBounds().contains(translated_pos)) {
                             selectedFile = filenames[i-1];
@@ -434,7 +383,9 @@ int Menu::launchLoadGameMenu(){
                                 isFirstPage = true;
                                 isLastPage = false;
                             }
-                            drawMenu(buttArr, textArr, pageNum);
+                            app.drawMenu(buttArr, textArr, controlButtons, controlButtonsText, font, pageNum, totalPagesStr, isFirstPage,
+                                         isLastPage,
+                                         isButtonNeeded);
                             goto skip;
                         }
                     }
@@ -442,7 +393,7 @@ int Menu::launchLoadGameMenu(){
                     break;
                 }
                 case sf::Event::MouseMoved:
-                    translated_pos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+                    translated_pos = app.window.mapPixelToCoords(sf::Mouse::getPosition(app.window));
                     if (lastButtonIndex!=-1){
                         if (!isInControlButton && !buttArr[lastButtonIndex].getGlobalBounds().contains(translated_pos)) {
                             buttArr[lastButtonIndex].setFillColor(sf::Color(0, 0, 0, 192));
@@ -465,12 +416,16 @@ int Menu::launchLoadGameMenu(){
                         if (controlButtons[i].getGlobalBounds().contains(translated_pos)) {
                             controlButtons[i].setFillColor(sf::Color(100,100,100,192));
                             lastButtonIndex = i;
-                            drawMenu(buttArr, textArr, pageNum);
+                            app.drawMenu(buttArr, textArr, controlButtons, controlButtonsText, font, pageNum, totalPagesStr, isFirstPage,
+                                         isLastPage,
+                                         isButtonNeeded);
                             isInControlButton = true;
                         }
                     }
                     skipisInButton:
-                    drawMenu(buttArr, textArr, pageNum);
+                    app.drawMenu(buttArr, textArr, controlButtons, controlButtonsText, font, pageNum, totalPagesStr, isFirstPage,
+                                 isLastPage,
+                                 isButtonNeeded);
                     break;
                 default: {
                     break;
@@ -479,6 +434,7 @@ int Menu::launchLoadGameMenu(){
         }
     }
     loadedGameChosen:
+
     return 1;
 }
 
@@ -505,9 +461,9 @@ int Menu::launchNewGameMenu() {
     pvbButton.setFillColor(sf::Color(0,0,0,192));
     backButton.setFillColor(sf::Color(0,0,0,192));
 
-    pvpButton.setPosition({static_cast<float>(window.getSize().x / 2 - pvpButton.getSize().x / 2), static_cast<float>(100)});
-    pvbButton.setPosition({static_cast<float>(window.getSize().x / 2 - pvbButton.getSize().x / 2), static_cast<float>(100 + window.getSize().y / 3)});
-    backButton.setPosition({static_cast<float>(window.getSize().x / 2 - backButton.getSize().x / 2), static_cast<float>(100 + 2 * window.getSize().y / 3)});
+    pvpButton.setPosition({static_cast<float>(app.window.getSize().x / 2 - pvpButton.getSize().x / 2), static_cast<float>(100)});
+    pvbButton.setPosition({static_cast<float>(app.window.getSize().x / 2 - pvbButton.getSize().x / 2), static_cast<float>(100 + app.window.getSize().y / 3)});
+    backButton.setPosition({static_cast<float>(app.window.getSize().x / 2 - backButton.getSize().x / 2), static_cast<float>(100 + 2 * app.window.getSize().y / 3)});
 
     sf::Text pvpText(font, "Pl vs Pl", 50);
     sf::Text pvbText(font, "Pl vs Bot", 50);
@@ -525,18 +481,18 @@ int Menu::launchNewGameMenu() {
     textArr.push_back(pvbText);
     textArr.push_back(backText);
 
-    drawMenu(buttArr, textArr);
+    app.drawMenu(buttArr, textArr);
     int ind = -1;
     int lastButtonIndex = -1;
     bool isInButton;
     {
         sf::Event event{};
         sf::Vector2f translated_pos;
-        while (window.isOpen()){
-            while (window.pollEvent(event)) {
+        while (app.window.isOpen()){
+            while (app.window.pollEvent(event)) {
                 switch (event.type) {
                     case sf::Event::MouseButtonPressed:
-                        translated_pos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+                        translated_pos = app.window.mapPixelToCoords(sf::Mouse::getPosition(app.window));
                         for (int i = 0; i<buttArr.size(); i++){
                             if (buttArr[i].getGlobalBounds().contains(translated_pos)) {
                                 ind = i;
@@ -545,19 +501,19 @@ int Menu::launchNewGameMenu() {
                         }
                         break;
                     case sf::Event::Resized:
-                        drawMenu(buttArr, textArr);
+                        app.drawMenu(buttArr, textArr);
                         break;
                     case sf::Event::Closed:
-                        window.close();
+                        app.window.close();
                         goto finish;
                     case sf::Event::MouseMoved:
-                        translated_pos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+                        translated_pos = app.window.mapPixelToCoords(sf::Mouse::getPosition(app.window));
                         for (int i = 0; i < buttArr.size(); i++) {
                             if (buttArr[i].getGlobalBounds().contains(translated_pos)) {
                                 buttArr[i].setFillColor(sf::Color(100,100,100,192));
                                 lastButtonIndex = i;
                                 isInButton = true;
-                                drawMenu(buttArr, textArr);
+                                app.drawMenu(buttArr, textArr);
                                 goto skipisInButton;
                             }
                         }
@@ -566,7 +522,7 @@ int Menu::launchNewGameMenu() {
                         if (!isInButton && lastButtonIndex!=-1) {
                             buttArr[lastButtonIndex].setFillColor(sf::Color(0,0,0,192));
                             lastButtonIndex = -1;
-                            drawMenu(buttArr, textArr);
+                            app.drawMenu(buttArr, textArr);
                         }
                     default:
                         break;
@@ -578,9 +534,17 @@ int Menu::launchNewGameMenu() {
     buttArr.clear();
     switch (ind){
         case 0:
-            return 1;
+            switch (playwithhuman()){
+                case -1: return -1; //
+                default: return 0;
+            }
+//            return 1;
         case 1:
-            return 2;
+            switch (playwithbot()){
+                case -1: return -1; //
+                default: return 0;
+            }
+//            return 2;
         case 2:
             return -1;
         default:
@@ -589,39 +553,83 @@ int Menu::launchNewGameMenu() {
     return 0;
 }
 
-void Menu::playwithbot() {
-    window.clear();
-    window.display();
-    window.clear(); //fixed buttons appearing behind the board for me, maybe leave it like this?
-    Application app(window, hb, background);
+int Menu::playwithbot() {
+    app.window.clear();
+    app.window.display();
+    app.window.clear(); //fixed buttons appearing behind the board for me, maybe leave it like this?
+    sf::RectangleShape exitButton;
+    exitButton.setSize({300,100});
+    exitButton.setOutlineThickness(5);
+    exitButton.setOutlineColor(sf::Color::White);
+    exitButton.setFillColor(sf::Color(0,0,0,192));
+    exitButton.setPosition({50, static_cast<float>(app.window.getSize().y-80-100)});
+
+    sf::Text exitText(font, "BACK", 40);
+    exitText.setPosition({static_cast<float>(exitButton.getPosition().x+exitButton.getSize().x/2-80), static_cast<float>(exitButton.getPosition().y+exitButton.getSize().y/2-30)});
+
+    vector<sf::RectangleShape> tempButton;
+    vector<sf::Text> tempText;
+    tempButton.push_back(exitButton);
+    tempText.push_back(exitText);
+
     if (!isLoadedGame){
         hb = HexBoard();
         p1 = Player(Stone::BLUE);
         bot = Bot(Stone::RED);
 
         Game game(hb, p1, bot, app);
-        game.startGame();
+        int res = game.startGame();
+        switch (res){
+            case 0: std::exit(0);
+            case -1: return -1; //restart the menu;
+        }
     } else {
         Game game(hb, p1, bot, app);
-        game.startLoadedGame(currStone);
+        int res = game.startLoadedGame(currStone);
+        switch (res){
+            case 0: std::exit(0);
+            case -1: return -1; //restart the menu;
+        }
     }
 }
 
-void Menu::playwithhuman() {
-    window.clear();
-    window.display();
-    window.clear(); //fixed buttons appearing behind the board for me, maybe leave it like this?
-    Application app(window, hb, background);
+int Menu::playwithhuman() {
+    app.window.clear();
+    app.window.display();
+    app.window.clear(); //fixed buttons appearing behind the board for me, maybe leave it like this?
+    sf::RectangleShape exitButton;
+    exitButton.setSize({300,100});
+    exitButton.setOutlineThickness(5);
+    exitButton.setOutlineColor(sf::Color::White);
+    exitButton.setFillColor(sf::Color(0,0,0,192));
+    exitButton.setPosition({50, static_cast<float>(app.window.getSize().y-80-100)});
+
+    sf::Text exitText(font, "BACK", 40);
+    exitText.setPosition({static_cast<float>(exitButton.getPosition().x+exitButton.getSize().x/2-80), static_cast<float>(exitButton.getPosition().y+exitButton.getSize().y/2-30)});
+
+    vector<sf::RectangleShape> tempButton;
+    vector<sf::Text> tempText;
+    tempButton.push_back(exitButton);
+    tempText.push_back(exitText);
+
     if (!isLoadedGame){
         hb = HexBoard();
         p1 = Player(Stone::BLUE);
         p2 = Player(Stone::RED);
 
         Game game(hb, p1, p2, app);
-        game.startGame();
+        int res = game.startGame();
+        switch (res){
+            case 0: std::exit(0);
+            case -1: return -1; //restart the menu;
+        }
     } else {
         Game game(hb, p1, p2, app);
-        game.startLoadedGame(currStone);
+        int res = game.startLoadedGame(currStone);
+        switch (res){
+            case 0: std::exit(0);
+            case -1: return -1; //restart the menu;
+        }
     }
 }
 

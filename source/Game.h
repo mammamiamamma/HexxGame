@@ -26,16 +26,18 @@ public:
     /**
      * initializes the start of the game
      */
-    void startGame();
-    void startLoadedGame(Stone currStone);
+    int startGame();
+    int startLoadedGame(Stone currStone);
     void saveGame();
 
-    int registerClickOnTile(sf::Event::MouseButtonEvent);
-
+    int registerClickOnTile(sf::Vector2f mouse_pos);
+    int registerClickOnButtons(sf::Vector2f mouse_pos);
     void registerKeyPressed(sf::Event::KeyEvent keyEvent);
 
     Player &getPlayerFromStone(Stone stone);
 
     void declareWinner();
+
+
 };
 #endif  // GAME_H

@@ -13,22 +13,6 @@
 
 class Application {
 private:
-    std::vector<std::vector<int>> possibleMovesForEven = {
-            {0,-1}, {-1,0}, {-1,1}, {0,1}, {1,1}, {1,0},
-            {0,-2}, {-2,-1}, {-2, 0}, {-2, 1}, {-1, 2}, {0, 2}, {1,2}, {2, 1}, {2, 0}, {2,-1}, {1,-1},
-            {-1,-1},
-    };
-    std::vector<std::vector<int>> possibleMovesForOdd = {
-            {0,-1}, {-1,-1}, {-1,0}, {0,1}, {1,0}, {1,-1},
-            {0,-2}, {-1,-2}, {-2,-1}, {-2,0}, {-2,1}, {0,2}, {2,1}, {2,0}, {2,-1}, {1,-2},
-            {-1,1}, {1,1}
-    };
-
-    std::vector<std::vector<int>> piecestolight;
-
-public:
-    sf::RenderWindow& window;
-    std::vector<std::vector<sf::CircleShape>> shapeBoard;
     const std::map<char, sf::Color> colorMap = {
             {'R', sf::Color(255, 0, 0)},
             {'B', sf::Color(0, 0, 255)},
@@ -41,18 +25,25 @@ public:
             {'0', sf::Color(70, 70, 70)},
             {' ', sf::Color(0,0,0,0)},
     };
-    HexBoard& b;
+public:
+    std::vector<std::vector<sf::CircleShape>> shapeBoard;
+    sf::RenderWindow& window;
     sf::RectangleShape background;
 
-    Application(sf::RenderWindow& windowRef, HexBoard& boardRef, sf::RectangleShape bg)
-        : window(windowRef), b(boardRef), shapeBoard(9, std::vector<sf::CircleShape>(9)), background(std::move(bg)) {}
+    Application(sf::RenderWindow& windowRef, sf::RectangleShape bg)
+        : window(windowRef), shapeBoard(9, std::vector<sf::CircleShape>(9)), background(std::move(bg)) {
+    }
 
     void initiateShapeBoard(HexBoard& hb);
     /**
      * displays the board in the window
      * @param hb the board to display
      */
-    bool displayPossibleMoves(int posx, int posy, bool indicator);
+    void updateShapeBoard(HexBoard &hb);
+
+//    bool displayPossibleMoves(int posx, int posy, bool indicator);
+    void displayPossibleMoves(std::vector<std::vector<int>>& piecesToLight, HexBoard& hb, int posx, int posy);
+    void displayPossibleMoves(std::vector<std::vector<int>>& piecesToLight, HexBoard& hb);
     /**
      * displays the possible moves of a piece
      * by highlighting them
@@ -60,6 +51,12 @@ public:
      * @param posy the y position of the piece
      * @param indicator whether to highlight the possible moves or not
      */
+
+    void drawButton(const sf::RectangleShape& b, const sf::Text& text);
+    void drawMenu(const std::vector<sf::RectangleShape>& buttArr, const std::vector<sf::Text>& textArr);
+    void drawMenu(const std::vector<sf::RectangleShape> &buttArr, const std::vector<sf::Text> &textArr, const std::vector<sf::RectangleShape>& controlButtons, const std::vector<sf::Text>& controlButtonsText, sf::Font& font, int& pageNum, string& totalPagesStr, bool isFirstPage,
+                  bool isLastPage,
+                  bool isButtonNeeded);
     void displayShapes();
     sf::Color getTileColor(const char& tileContent);
     sf::Color getBorderColor(const char& tileContent);

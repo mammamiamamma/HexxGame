@@ -4,8 +4,6 @@
 #include <filesystem>
 
 
-HexBoard::HexBoard() = default;
-
 void HexBoard::putStone(int y, int x, Player& p) {
     char stone;
     if (p.getStone() == Stone::BLUE) stone = 'B';
@@ -123,3 +121,31 @@ void HexBoard::turnPiecesFriendly(int desty, int destx, Player& p, Player& oppon
 }
 
 int HexBoard::freeSpaces = 52;
+
+std::vector<std::vector<int>> HexBoard::createPossibleMoves(int posx, int posy) {
+    std::vector<std::vector<int>> piecestolight;
+    if (posx%2==1){
+        for (std::vector<int> vec : possibleMovesForOdd) {
+            int newx = posx + vec[0];
+            int newy = posy + vec[1];
+            if (newx < 0 || newx >= HexBoard::BOARD_SIZE || newy < 0 || newy >= HexBoard::BOARD_SIZE)
+                continue;
+            if (board[newy][newx] == '0') {
+                piecestolight.push_back({ newx, newy });
+            }
+        }
+    } else {
+        for (std::vector<int> vec : possibleMovesForEven) {
+            int newx = posx + vec[0];
+            int newy = posy + vec[1];
+            if (newx < 0 || newx >= HexBoard::BOARD_SIZE || newy < 0 || newy >= HexBoard::BOARD_SIZE)
+                    continue;
+            if (board[newy][newx] == '0') {
+                piecestolight.push_back({ newx, newy });
+            }
+        }
+    }
+    return piecestolight;
+}
+
+HexBoard::HexBoard() = default;

@@ -3,6 +3,7 @@
 #include <fstream>
 #include <filesystem>
 
+HexBoard::HexBoard() = default;
 
 void HexBoard::putStone(int y, int x, Player& p) {
     char stone;
@@ -37,39 +38,33 @@ void HexBoard::jumpMove(int posy, int posx, int desty, int destx, Player& p) {
 
 bool HexBoard::makeAMove(int posy, int posx, int desty, int destx, Player& p, Player& opponent) {
     if (validMove(posy, posx, desty, destx, p)) {
-        if (abs(posy - desty) == 1 && abs(posx - destx) == 0) {
+        if (
+                (abs(posy - desty) == 1 && abs(posx - destx) == 0) ||
+                (abs(posy - desty) == 0 && abs(posx - destx) == 1)
+                )
+        {
             closeMove(desty, destx, p);
             turnPiecesFriendly(desty, destx, p, opponent);
             return true; //both
-        } else if (abs(posy - desty) == 0 && abs(posx - destx) == 1) {
-            closeMove(desty, destx, p);
-            turnPiecesFriendly(desty, destx, p, opponent);
-            return true; //both
-        } else if (abs(posy - desty) == 2 && abs(posx - destx) == 0) {
-            jumpMove(posy, posx, desty, destx, p);
-            turnPiecesFriendly(desty, destx, p, opponent);
-            return true; //both
-        } else if (abs(posy - desty) == 0 && abs(posx - destx) == 2) {
-            jumpMove(posy, posx, desty, destx, p);
-            turnPiecesFriendly(desty, destx, p, opponent);
-            return true; //both
-        } else if (abs(posy - desty) == 1 && abs(posx - destx) == 2) {
+        } else if (
+                (abs(posy - desty) == 2 && abs(posx - destx) == 0) ||
+                (abs(posy - desty) == 0 && abs(posx - destx) == 2) ||
+                (abs(posy - desty) == 1 && abs(posx - destx) == 2)
+                )
+        {
             jumpMove(posy, posx, desty, destx, p);
             turnPiecesFriendly(desty, destx, p, opponent);
             return true; //both
         }
         if (posx%2==1) {
-            if (posy - desty == -1 && abs(posx - destx) == 1) {
-                jumpMove(posy, posx, desty, destx, p);
-                turnPiecesFriendly(desty, destx, p, opponent);
-                return true;
-            }
-            else if (posy - desty == 1 && abs(posx - destx) == 1) {
+            if (posy - desty == 1 && abs(posx - destx) == 1) {
                 closeMove(desty, destx, p);
                 turnPiecesFriendly(desty, destx, p, opponent);
                 return true;
             }
-            else if (abs(posx - destx) == 1 && posy - desty == 2){
+            else if (
+                    (posy - desty == -1 && abs(posx - destx) == 1) ||
+                    (abs(posx - destx) == 1 && posy - desty == 2)) {
                 jumpMove(posy, posx, desty, destx, p);
                 turnPiecesFriendly(desty, destx, p, opponent);
                 return true;
@@ -79,11 +74,9 @@ bool HexBoard::makeAMove(int posy, int posx, int desty, int destx, Player& p, Pl
                 closeMove(desty, destx, p);
                 turnPiecesFriendly(desty, destx, p, opponent);
                 return true;
-            } else if (posy - desty == 1 && abs(posx - destx) == 1) {
-                jumpMove(posy, posx, desty, destx, p);
-                turnPiecesFriendly(desty, destx, p, opponent);
-                return true;
-            } else if (abs(posx - destx) == 1 && posy - desty == -2){
+            } else if (
+                    (posy - desty == 1 && abs(posx - destx) == 1) ||
+                    (abs(posx - destx) == 1 && posy - desty == -2)) {
                 jumpMove(posy, posx, desty, destx, p);
                 turnPiecesFriendly(desty, destx, p, opponent);
                 return true;
@@ -147,5 +140,3 @@ std::vector<std::vector<int>> HexBoard::createPossibleMoves(int posx, int posy) 
     }
     return piecestolight;
 }
-
-HexBoard::HexBoard() = default;

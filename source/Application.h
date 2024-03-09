@@ -29,21 +29,32 @@ public:
     std::vector<std::vector<sf::CircleShape>> shapeBoard;
     sf::RenderWindow& window;
     sf::RectangleShape background;
+    float WINDOW_SIZE_X; //made it float to silence the conversion warnings in Menu.cpp
+    float WINDOW_SIZE_Y;
 
-    Application(sf::RenderWindow& windowRef, sf::RectangleShape bg)
+            Application(sf::RenderWindow& windowRef, sf::RectangleShape bg)
         : window(windowRef), shapeBoard(9, std::vector<sf::CircleShape>(9)), background(std::move(bg)) {
+                WINDOW_SIZE_X = (float) window.getSize().x;
+                WINDOW_SIZE_Y = (float) window.getSize().y;
     }
 
     void initiateShapeBoard(HexBoard& hb);
     /**
-     * displays the board in the window
+     * initates and displays the shape board in the window
      * @param hb the board to display
      */
     void updateShapeBoard(HexBoard &hb);
+    /**
+     * updates and displays the shape board in the window
+     * @param hb the board to display
+     */
 
-//    bool displayPossibleMoves(int posx, int posy, bool indicator);
     void displayPossibleMoves(std::vector<std::vector<int>>& piecesToLight, HexBoard& hb, int posx, int posy);
     void displayPossibleMoves(std::vector<std::vector<int>>& piecesToLight, HexBoard& hb);
+    sf::RectangleShape createButton(const sf::Vector2f& size);
+    sf::RectangleShape createButton(const sf::Vector2f& size, const sf::Color& color);
+    sf::Vector2f getTextPosition(sf::Text &text, const sf::RectangleShape &rectangle);
+    sf::Text createText(const sf::Font& font, const std::string& textContent, unsigned int characterSize, sf::RectangleShape& targetButton);
     /**
      * displays the possible moves of a piece
      * by highlighting them
@@ -54,14 +65,23 @@ public:
 
     void drawButton(const sf::RectangleShape& b, const sf::Text& text);
     void drawMenu(const std::vector<sf::RectangleShape>& buttArr, const std::vector<sf::Text>& textArr);
-    void drawMenu(const std::vector<sf::RectangleShape> &buttArr, const std::vector<sf::Text> &textArr, const std::vector<sf::RectangleShape>& controlButtons, const std::vector<sf::Text>& controlButtonsText, sf::Font& font, int& pageNum, string& totalPagesStr, bool isFirstPage,
+    void drawMenu(const std::vector<sf::RectangleShape> &buttArr, const std::vector<sf::Text> &textArr,
+                  const std::vector<sf::RectangleShape>& controlButtons,
+                  const std::vector<sf::Text>& controlButtonsText,
+                  sf::Font& font,
+                  int& pageNum,
+                  string& totalPagesStr,
+                  bool isFirstPage,
                   bool isLastPage,
                   bool isButtonNeeded);
-    void displayShapes();
+    void displayShapes(vector<sf::RectangleShape>& buttArr, vector<sf::Text>& textArr);
     sf::Color getTileColor(const char& tileContent);
     sf::Color getBorderColor(const char& tileContent);
     static bool isClickedInsideTile(sf::Vector2f point, const sf::CircleShape& tile);
 
+    /**
+     * moved the methods above to this class because i wanted to refactor it to be sort of a rendering class, so there's that
+     */
 };
 
 #endif // APPLICATION_H

@@ -25,7 +25,6 @@ void Application::initiateShapeBoard(HexBoard& hb) {
             shapeBoard[i][j].setFillColor(tileColor);
         }
     }
-    displayShapes();
 }
 
 void Application::updateShapeBoard(HexBoard& hb) {
@@ -37,7 +36,6 @@ void Application::updateShapeBoard(HexBoard& hb) {
             shapeBoard[i][j].setFillColor(tileColor);
         }
     }
-    displayShapes();
 }
 
 sf::Color Application::getTileColor(const char& tileContent) {
@@ -73,6 +71,38 @@ void Application::drawMenu(const std::vector<sf::RectangleShape>& buttArr, const
         window.draw(text);
     }
     window.display();
+}
+
+sf::RectangleShape Application::createButton(const sf::Vector2f& size){
+    sf::RectangleShape button;
+    button.setSize(size);
+    button.setOutlineThickness(5.f);
+    button.setOutlineColor(sf::Color::White);
+    button.setFillColor(sf::Color(0,0,0,192));
+    return button;
+}
+
+sf::RectangleShape Application::createButton(const sf::Vector2f& size, const sf::Color& color){
+    sf::RectangleShape button;
+    button.setSize(size);
+    button.setOutlineThickness(5.f);
+    button.setOutlineColor(color);
+    button.setFillColor(sf::Color(0,0,0,192));
+    return button;
+}
+
+sf::Text Application::createText(const sf::Font &font, const string &textContent, unsigned int characterSize,
+                                 sf::RectangleShape &targetButton) {
+    sf::Text text(font, textContent, characterSize);
+    text.setPosition(getTextPosition(text, targetButton));
+    return text;
+}
+
+sf::Vector2f Application::getTextPosition(sf::Text& text, const sf::RectangleShape& rectangle) {
+    sf::FloatRect textBounds = text.getLocalBounds();
+    float xPosition = rectangle.getPosition().x + (rectangle.getSize().x - textBounds.width) / 2 - textBounds.left;
+    float yPosition = rectangle.getPosition().y + (rectangle.getSize().y - textBounds.height) / 2 - textBounds.top;
+    return {xPosition, yPosition};
 }
 
 void Application::drawMenu(
@@ -120,9 +150,15 @@ void Application::drawButton(const sf::RectangleShape& b, const sf::Text& text) 
     window.draw(text);
 }
 
-void Application::displayShapes(){
+void Application::displayShapes(vector<sf::RectangleShape>& buttArr, vector<sf::Text>& textArr){
     window.clear();
     window.draw(background);
+    for (const auto& t : buttArr){
+        window.draw(t);
+    }
+    for (const auto& t : textArr){
+        window.draw(t);
+    }
     for (auto & i : shapeBoard)
     {
         for (int j = 0; j < shapeBoard[0].size(); j++)
@@ -130,72 +166,18 @@ void Application::displayShapes(){
             window.draw(i[j]);
         }
     }
-//    for (const auto & controlButton : controlButtons){
-//        window.draw(controlButton);
-//    }
-//    for (const auto & i : controlButtonsText){
-//        window.draw(i);
-//    }
     window.display();
 }
-
-//bool Application::displayPossibleMoves(int posx, int posy, bool indicator) {
-//    if (b.board[posy][posx] == ' ')
-//        return false;
-//    if (indicator) {
-//        piecestolight.clear();
-//        if (posx%2==1){
-//            for (std::vector<int> vec : possibleMovesForOdd) {
-//                int newx = posx + vec[0];
-//                int newy = posy + vec[1];
-//                if (newx < 0 || newx >= HexBoard::BOARD_SIZE || newy < 0 || newy >= HexBoard::BOARD_SIZE)
-//                    continue;
-//                if (b.board[newy][newx] == '0') {
-//                    piecestolight.push_back({ newx, newy });
-//                }
-//            }
-//        } else {
-//            for (std::vector<int> vec : possibleMovesForEven) {
-//                int newx = posx + vec[0];
-//                int newy = posy + vec[1];
-//                if (newx < 0 || newx >= HexBoard::BOARD_SIZE || newy < 0 || newy >= HexBoard::BOARD_SIZE)
-//                    continue;
-//                if (b.board[newy][newx] == '0') {
-//                    piecestolight.push_back({ newx, newy });
-//                }
-//            }
-//        }
-//
-//        if (piecestolight.empty()) return false;
-//
-//        sf::Color color = getTileColor(b.board[posy][posx]);
-//        for (std::vector<int> vec : piecestolight) {
-//            int newx = vec[0];
-//            int newy = vec[1];
-//            shapeBoard[newy][newx].setOutlineColor(color);
-//        }
-//    }
-//    else {
-//        for (std::vector<int> vec : piecestolight) {
-//            shapeBoard[vec[1]][vec[0]].setOutlineColor(getBorderColor(b.board[vec[1]][vec[0]]));
-//        }
-//        piecestolight.clear();
-//    }
-//    displayShapes();
-//    return true;
-//}
 
 void Application::displayPossibleMoves(std::vector<std::vector<int>>& piecesToLight, HexBoard& hb, int posx, int posy) {
     for (std::vector<int> vec : piecesToLight) {
         shapeBoard[vec[1]][vec[0]].setOutlineColor(getTileColor(hb.board[posy][posx]));
     }
-    displayShapes();
 }
 void Application::displayPossibleMoves(std::vector<std::vector<int>>& piecesToLight, HexBoard& hb) {
     for (std::vector<int> vec : piecesToLight) {
         shapeBoard[vec[1]][vec[0]].setOutlineColor(getBorderColor(hb.board[vec[1]][vec[0]]));
     }
-    displayShapes();
 }
 
 

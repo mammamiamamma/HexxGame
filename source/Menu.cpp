@@ -36,45 +36,25 @@ void Menu::runMenu() {
 int Menu::launchMenu() {
     vector<sf::RectangleShape> buttArr;
     vector<sf::Text> textArr;
-    sf::RectangleShape newGameButton;
-    sf::RectangleShape loadGameButton;
-    sf::RectangleShape exitButton;
+    sf::RectangleShape newGameButton = app.createButton({500, 150});
+    sf::RectangleShape loadGameButton = app.createButton({500, 150});
+    sf::RectangleShape exitButton = app.createButton({500, 150});
 
-    newGameButton.setSize({500, 150});
-    loadGameButton.setSize({500, 150});
-    exitButton.setSize({500,150});
+    newGameButton.setPosition({static_cast<float>(app.WINDOW_SIZE_X / 2.f - newGameButton.getSize().x / 2.f), static_cast<float>(100)});
+    loadGameButton.setPosition({static_cast<float>(app.WINDOW_SIZE_X / 2 - loadGameButton.getSize().x / 2), static_cast<float>(100 + app.WINDOW_SIZE_Y / 3)});
+    exitButton.setPosition({static_cast<float>(app.WINDOW_SIZE_X / 2 - exitButton.getSize().x/2), static_cast<float>(100+2*app.WINDOW_SIZE_Y / 3)});
 
-    newGameButton.setOutlineThickness(5);
-    loadGameButton.setOutlineThickness(5);
-    exitButton.setOutlineThickness(5);
+    sf::Text newGameText = app.createText(font, "NEW GAME", 50, newGameButton);
+    sf::Text loadGameText = app.createText(font, "LOAD GAME", 50, loadGameButton);
+    sf::Text exitText = app.createText(font, "EXIT", 50, exitButton);
 
-    newGameButton.setOutlineColor(sf::Color::White);
-    loadGameButton.setOutlineColor(sf::Color::White);
-    exitButton.setOutlineColor(sf::Color::White);
+    buttArr.emplace_back(newGameButton);
+    buttArr.emplace_back(loadGameButton);
+    buttArr.emplace_back(exitButton);
 
-    newGameButton.setFillColor(sf::Color(0,0,0,192));
-    loadGameButton.setFillColor(sf::Color(0,0,0,192));
-    exitButton.setFillColor(sf::Color(0,0,0,192));
-
-    newGameButton.setPosition({static_cast<float>(app.window.getSize().x / 2 - newGameButton.getSize().x / 2), static_cast<float>(100)});
-    loadGameButton.setPosition({static_cast<float>(app.window.getSize().x / 2 - loadGameButton.getSize().x / 2), static_cast<float>(100 + app.window.getSize().y / 3)});
-    exitButton.setPosition({static_cast<float>(app.window.getSize().x / 2 - exitButton.getSize().x/2), static_cast<float>(100+2*app.window.getSize().y / 3)});
-
-    sf::Text newGameText(font, "NEW GAME", 50);
-    sf::Text loadGameText(font, "LOAD GAME", 50);
-    sf::Text exitText(font, "EXIT", 50);
-
-    newGameText.setPosition({static_cast<float>(newGameButton.getPosition().x + 50), static_cast<float>(newGameButton.getPosition().y + newGameButton.getSize().y / 4)});
-    loadGameText.setPosition({static_cast<float>(loadGameButton.getPosition().x + 30), static_cast<float>(loadGameButton.getPosition().y + loadGameButton.getSize().y / 4)});
-    exitText.setPosition({static_cast<float>(exitButton.getPosition().x+165), static_cast<float>(exitButton.getPosition().y+exitButton.getSize().y/4)});
-
-    buttArr.push_back(newGameButton);
-    buttArr.push_back(loadGameButton);
-    buttArr.push_back(exitButton);
-
-    textArr.push_back(newGameText);
-    textArr.push_back(loadGameText);
-    textArr.push_back(exitText);
+    textArr.emplace_back(newGameText);
+    textArr.emplace_back(loadGameText);
+    textArr.emplace_back(exitText);
 
     restart:
     app.drawMenu(buttArr, textArr);
@@ -131,17 +111,12 @@ int Menu::launchMenu() {
         case 0:
             app.window.clear();
             switch (launchNewGameMenu()){ //i didnt want to go too deep into recursion so tried to do it this way, but maybe its not that bad.
-//                case 1: playwithhuman();
-//                case 2: playwithbot();
-                case -1: {
-                    goto restart;
-                }
+                case -1: goto restart;
                 case 0: return -1;
             }
             break;
         case 1:
             switch (launchLoadGameMenu()){
-//                case 0: return -1;
                 case -1: {
                     controlButtons.clear();
                     controlButtonsText.clear();
@@ -162,7 +137,6 @@ int Menu::launchMenu() {
                     }
                 } // restarting the main menu sequence
             }
-//            return -1;
             break;
         case 2:
             return -1;
@@ -203,7 +177,7 @@ vector<sf::Text> Menu::getTextForButton(const string& filename){
     string freeSpaces;
     string score1;
     string score2;
-    string currStone;
+    string currentStone;
     string gamemode;
     ifstream inputFile("saves/"+filename);
     if (!inputFile) {
@@ -215,7 +189,7 @@ vector<sf::Text> Menu::getTextForButton(const string& filename){
         for (int i = 0; i<9; i++){
             std::getline(inputFile, line);
         }
-        inputFile >> currStone;
+        inputFile >> currentStone;
         inputFile >> freeSpaces;
         inputFile >> score1;
         inputFile >> score2;
@@ -231,9 +205,9 @@ vector<sf::Text> Menu::getTextForButton(const string& filename){
         sf::Text currTurnText(font, "CURRENT TURN: ", 20);
         sf::Text saveTimeText(font, "SAVED ON: "+parts[0]+", "+parts[1], 27);
 
-        sf::Text stoneText(font, currStone, 20);
+        sf::Text stoneText(font, currentStone, 20);
         stoneText.setOutlineThickness(2);
-        if (currStone=="B") {
+        if (currentStone == "B") {
             stoneText.setOutlineColor(sf::Color::Blue);
         } else {
             stoneText.setOutlineColor(sf::Color::Red);
@@ -262,22 +236,14 @@ int Menu::launchLoadGameMenu(){
     vector<sf::RectangleShape> buttArr;
     vector<sf::Text> textArr;
 
-    sf::RectangleShape saveWindow;
-    saveWindow.setSize({740,870});
-    saveWindow.setPosition({app.window.getSize().x/2-saveWindow.getSize().x/2, 130});
-    saveWindow.setOutlineThickness(5);
-    saveWindow.setOutlineColor(sf::Color::Cyan);
-    saveWindow.setFillColor(sf::Color(0,0,0,192));
-    buttArr.push_back(saveWindow);
+    sf::RectangleShape saveWindow = app.createButton({740,870}, sf::Color::Cyan);
+    saveWindow.setPosition({app.WINDOW_SIZE_X/2-saveWindow.getSize().x/2, 130});
 
+    buttArr.emplace_back(saveWindow);
     for (int i = 0; i<filenames.size(); i++){
-        sf::RectangleShape button;
-        button.setSize({700, 150});
-        button.setOutlineThickness(5);
-        button.setOutlineColor(sf::Color::White);
-        button.setFillColor(sf::Color(0,0,0,192));
-        button.setPosition({static_cast<float>(app.window.getSize().x / 2 - button.getSize().x / 2), static_cast<float>(150+ 170*(i%5))});
-        buttArr.push_back(button);
+        sf::RectangleShape button = app.createButton({700, 150});
+        button.setPosition({static_cast<float>(app.WINDOW_SIZE_X / 2 - button.getSize().x / 2), static_cast<float>(150+ 170*(i%5))});
+        buttArr.emplace_back(button);
 
         vector<sf::Text> buttonText = getTextForButton(filenames[i]);
         buttonText[0].setPosition({button.getPosition().x+10, button.getPosition().y+10});
@@ -287,52 +253,35 @@ int Menu::launchLoadGameMenu(){
         buttonText[5].setPosition({button.getPosition().x+255, button.getPosition().y+button.getSize().y/2+20});
         buttonText[4].setPosition({button.getPosition().x+400, button.getPosition().y+button.getSize().y/2-20});
 
-        textArr.push_back(buttonText[0]);
-        textArr.push_back(buttonText[1]);
-        textArr.push_back(buttonText[2]);
-        textArr.push_back(buttonText[3]);
-        textArr.push_back(buttonText[5]);
-        textArr.push_back(buttonText[4]);
+        textArr.emplace_back(buttonText[0]);
+        textArr.emplace_back(buttonText[1]);
+        textArr.emplace_back(buttonText[2]);
+        textArr.emplace_back(buttonText[3]);
+        textArr.emplace_back(buttonText[5]);
+        textArr.emplace_back(buttonText[4]);
     }
 
-    sf::RectangleShape backButton;
-    backButton.setSize({300,100});
-    backButton.setPosition({50, static_cast<float>(app.window.getSize().y-80-100)});
-    backButton.setOutlineThickness(5);
-    backButton.setOutlineColor(sf::Color::White);
-    backButton.setFillColor(sf::Color(0,0,0,192));
+    sf::RectangleShape backButton = app.createButton({300,100});
+    backButton.setPosition({50, static_cast<float>(app.WINDOW_SIZE_Y-80-100)});
+    sf::Text backText = app.createText(font, "BACK", 40, backButton);
 
-    sf::Text backText(font, "BACK", 40);
-    backText.setPosition({static_cast<float>(backButton.getPosition().x+backButton.getSize().x/2-80), static_cast<float>(backButton.getPosition().y+backButton.getSize().y/2-30)});
-
-    controlButtons.push_back(backButton);
-    controlButtonsText.push_back(backText);
+    controlButtons.emplace_back(backButton);
+    controlButtonsText.emplace_back(backText);
 
     if (filenames.size()>5){
         isButtonNeeded = true;
-        sf::RectangleShape prevButton;
-        sf::RectangleShape nextButton;
-        prevButton.setSize({300,100});
-        nextButton.setSize({300,100});
-        prevButton.setPosition({static_cast<float>(app.window.getSize().x/2-700), app.window.getSize().y/2-prevButton.getSize().y/2});
-        nextButton.setPosition({static_cast<float>(app.window.getSize().x/2+400), app.window.getSize().y/2-prevButton.getSize().y/2});
-        prevButton.setOutlineThickness(5);
-        nextButton.setOutlineThickness(5);
-        prevButton.setOutlineColor(sf::Color::White);
-        nextButton.setOutlineColor(sf::Color::White);
-        prevButton.setFillColor(sf::Color(0,0,0,192));
-        nextButton.setFillColor(sf::Color(0,0,0,192));
+        sf::RectangleShape prevButton = app.createButton({300,100});
+        sf::RectangleShape nextButton = app.createButton({300,100});
+        prevButton.setPosition({static_cast<float>(app.WINDOW_SIZE_X/2-700), app.WINDOW_SIZE_Y/2-prevButton.getSize().y/2});
+        nextButton.setPosition({static_cast<float>(app.WINDOW_SIZE_X/2+400), app.WINDOW_SIZE_Y/2-prevButton.getSize().y/2});
+        sf::Text prevButtonText = app.createText(font, "PREV PAGE", 30, prevButton);
+        sf::Text nextButtonText = app.createText(font, "NEXT PAGE", 30, nextButton);
 
-        sf::Text prevButtonText(font, "PREV PAGE", 30);
-        sf::Text nextButtonText(font, "NEXT PAGE", 30);
-        prevButtonText.setPosition({prevButton.getPosition().x+20, prevButton.getPosition().y+30});
-        nextButtonText.setPosition({nextButton.getPosition().x+20, nextButton.getPosition().y+30});
+        controlButtons.emplace_back(prevButton);
+        controlButtons.emplace_back(nextButton);
 
-        controlButtons.push_back(prevButton);
-        controlButtons.push_back(nextButton);
-
-        controlButtonsText.push_back(prevButtonText);
-        controlButtonsText.push_back(nextButtonText);
+        controlButtonsText.emplace_back(prevButtonText);
+        controlButtonsText.emplace_back(nextButtonText);
     }
     int pageNum = 0;
     sf::Event event{};
@@ -441,45 +390,24 @@ int Menu::launchLoadGameMenu(){
 int Menu::launchNewGameMenu() {
     vector<sf::RectangleShape> buttArr;
     vector<sf::Text> textArr;
-    sf::RectangleShape pvpButton;
-    sf::RectangleShape pvbButton;
-    sf::RectangleShape backButton;
+    sf::RectangleShape pvpButton = app.createButton({500, 150});
+    sf::RectangleShape pvbButton = app.createButton({500, 150});
+    sf::RectangleShape backButton = app.createButton({500, 150});
+    pvpButton.setPosition({static_cast<float>(app.WINDOW_SIZE_X / 2 - pvpButton.getSize().x / 2), static_cast<float>(100)});
+    pvbButton.setPosition({static_cast<float>(app.WINDOW_SIZE_X / 2 - pvbButton.getSize().x / 2), static_cast<float>(100 + app.WINDOW_SIZE_Y / 3)});
+    backButton.setPosition({static_cast<float>(app.WINDOW_SIZE_X / 2 - backButton.getSize().x / 2), static_cast<float>(100 + 2 * app.WINDOW_SIZE_Y / 3)});
 
-    pvpButton.setSize({500, 150});
-    pvbButton.setSize({500, 150});
-    backButton.setSize({500, 150});
+    sf::Text pvpText = app.createText(font, "PL vs PL", 50, pvpButton);
+    sf::Text pvbText = app.createText(font, "PL vs BOT", 50, pvbButton);
+    sf::Text backText = app.createText(font, "BACK", 50, backButton);
 
-    pvpButton.setOutlineThickness(5);
-    pvbButton.setOutlineThickness(5);
-    backButton.setOutlineThickness(5);
+    buttArr.emplace_back(pvpButton);
+    buttArr.emplace_back(pvbButton);
+    buttArr.emplace_back(backButton);
 
-    pvpButton.setOutlineColor(sf::Color::White);
-    pvbButton.setOutlineColor(sf::Color::White);
-    backButton.setOutlineColor(sf::Color::White);
-
-    pvpButton.setFillColor(sf::Color(0,0,0,192));
-    pvbButton.setFillColor(sf::Color(0,0,0,192));
-    backButton.setFillColor(sf::Color(0,0,0,192));
-
-    pvpButton.setPosition({static_cast<float>(app.window.getSize().x / 2 - pvpButton.getSize().x / 2), static_cast<float>(100)});
-    pvbButton.setPosition({static_cast<float>(app.window.getSize().x / 2 - pvbButton.getSize().x / 2), static_cast<float>(100 + app.window.getSize().y / 3)});
-    backButton.setPosition({static_cast<float>(app.window.getSize().x / 2 - backButton.getSize().x / 2), static_cast<float>(100 + 2 * app.window.getSize().y / 3)});
-
-    sf::Text pvpText(font, "Pl vs Pl", 50);
-    sf::Text pvbText(font, "Pl vs Bot", 50);
-    sf::Text backText(font, "BACK", 50);
-
-    pvpText.setPosition({static_cast<float>(pvpButton.getPosition().x + (pvpButton.getSize().x - 330) / 2), static_cast<float>(pvpButton.getPosition().y + pvpButton.getSize().y / 4)});
-    pvbText.setPosition({static_cast<float>(pvbButton.getPosition().x + (pvbButton.getSize().x - 380) / 2), static_cast<float>(pvbButton.getPosition().y + pvbButton.getSize().y / 4)});
-    backText.setPosition({static_cast<float>(backButton.getPosition().x + (backButton.getSize().x - 200) / 2), static_cast<float>(backButton.getPosition().y + backButton.getSize().y / 4)});
-
-    buttArr.push_back(pvpButton);
-    buttArr.push_back(pvbButton);
-    buttArr.push_back(backButton);
-
-    textArr.push_back(pvpText);
-    textArr.push_back(pvbText);
-    textArr.push_back(backText);
+    textArr.emplace_back(pvpText);
+    textArr.emplace_back(pvbText);
+    textArr.emplace_back(backText);
 
     app.drawMenu(buttArr, textArr);
     int ind = -1;
@@ -535,16 +463,14 @@ int Menu::launchNewGameMenu() {
     switch (ind){
         case 0:
             switch (playwithhuman()){
-                case -1: return -1; //
+                case -1: return -1;
                 default: return 0;
             }
-//            return 1;
         case 1:
             switch (playwithbot()){
-                case -1: return -1; //
+                case -1: return -1;
                 default: return 0;
             }
-//            return 2;
         case 2:
             return -1;
         default:
@@ -557,20 +483,15 @@ int Menu::playwithbot() {
     app.window.clear();
     app.window.display();
     app.window.clear(); //fixed buttons appearing behind the board for me, maybe leave it like this?
-    sf::RectangleShape exitButton;
-    exitButton.setSize({300,100});
-    exitButton.setOutlineThickness(5);
-    exitButton.setOutlineColor(sf::Color::White);
-    exitButton.setFillColor(sf::Color(0,0,0,192));
-    exitButton.setPosition({50, static_cast<float>(app.window.getSize().y-80-100)});
+    sf::RectangleShape exitButton = app.createButton({300,100});
+    exitButton.setPosition({50, static_cast<float>(app.WINDOW_SIZE_Y-80-100)});
 
-    sf::Text exitText(font, "BACK", 40);
-    exitText.setPosition({static_cast<float>(exitButton.getPosition().x+exitButton.getSize().x/2-80), static_cast<float>(exitButton.getPosition().y+exitButton.getSize().y/2-30)});
+    sf::Text exitText = app.createText(font, "BACK", 40, exitButton);
 
     vector<sf::RectangleShape> tempButton;
     vector<sf::Text> tempText;
-    tempButton.push_back(exitButton);
-    tempText.push_back(exitText);
+    tempButton.emplace_back(exitButton);
+    tempText.emplace_back(exitText);
 
     if (!isLoadedGame){
         hb = HexBoard();
@@ -578,17 +499,21 @@ int Menu::playwithbot() {
         bot = Bot(Stone::RED);
 
         Game game(hb, p1, bot, app);
+        game.setControlButtons(tempButton);
+        game.setControlButtonsText(tempText);
         int res = game.startGame();
         switch (res){
-            case 0: std::exit(0);
             case -1: return -1; //restart the menu;
+            default: std::exit(0);
         }
     } else {
         Game game(hb, p1, bot, app);
+        game.setControlButtons(tempButton);
+        game.setControlButtonsText(tempText);
         int res = game.startLoadedGame(currStone);
         switch (res){
-            case 0: std::exit(0);
             case -1: return -1; //restart the menu;
+            default: std::exit(0);
         }
     }
 }
@@ -597,20 +522,14 @@ int Menu::playwithhuman() {
     app.window.clear();
     app.window.display();
     app.window.clear(); //fixed buttons appearing behind the board for me, maybe leave it like this?
-    sf::RectangleShape exitButton;
-    exitButton.setSize({300,100});
-    exitButton.setOutlineThickness(5);
-    exitButton.setOutlineColor(sf::Color::White);
-    exitButton.setFillColor(sf::Color(0,0,0,192));
-    exitButton.setPosition({50, static_cast<float>(app.window.getSize().y-80-100)});
-
-    sf::Text exitText(font, "BACK", 40);
-    exitText.setPosition({static_cast<float>(exitButton.getPosition().x+exitButton.getSize().x/2-80), static_cast<float>(exitButton.getPosition().y+exitButton.getSize().y/2-30)});
+    sf::RectangleShape exitButton = app.createButton({300,100});
+    exitButton.setPosition({50, static_cast<float>(app.WINDOW_SIZE_Y-80-100)});
+    sf::Text exitText = app.createText(font, "BACK", 40, exitButton);
 
     vector<sf::RectangleShape> tempButton;
     vector<sf::Text> tempText;
-    tempButton.push_back(exitButton);
-    tempText.push_back(exitText);
+    tempButton.emplace_back(exitButton);
+    tempText.emplace_back(exitText);
 
     if (!isLoadedGame){
         hb = HexBoard();
@@ -618,23 +537,27 @@ int Menu::playwithhuman() {
         p2 = Player(Stone::RED);
 
         Game game(hb, p1, p2, app);
+        game.setControlButtons(tempButton);
+        game.setControlButtonsText(tempText);
         int res = game.startGame();
         switch (res){
-            case 0: std::exit(0);
             case -1: return -1; //restart the menu;
+            default: std::exit(0);
         }
     } else {
         Game game(hb, p1, p2, app);
+        game.setControlButtons(tempButton);
+        game.setControlButtonsText(tempText);
         int res = game.startLoadedGame(currStone);
         switch (res){
-            case 0: std::exit(0);
             case -1: return -1; //restart the menu;
+            default: std::exit(0);
         }
     }
 }
 
 int Menu::loadGame() {
-    if (selectedFile == "nofile") return -1;
+    if (selectedFile == "nofile") return -1; //check in case the load file wasnt chosen
     isLoadedGame = true;
     p1 = Player(Stone::BLUE);
     p2 = Player(Stone::RED);
@@ -644,11 +567,11 @@ int Menu::loadGame() {
         for (int row = 0; row < HexBoard::BOARD_SIZE; ++row) {
             std::string line;
             if (!std::getline(inputFile, line)) {
-                break;  // Reached the end of the file
+                break;
             }
             for (size_t col = 0; col < HexBoard::BOARD_SIZE; ++col) {
                 if (col >= line.length()) {
-                    break;  // Reached the end of the line
+                    break;
                 }
                 switch (line[col]) {
                     case '0':

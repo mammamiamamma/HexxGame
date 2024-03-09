@@ -19,9 +19,14 @@ private:
     string filePath = "saves/";
     Stone currentStone;
     Stone otherStone;
+
+    vector<sf::RectangleShape> controlButtons;
+    vector<sf::Text> controlButtonsText;
 public:
     explicit Game(HexBoard& b1, Player& p1, Player& p2, Application& app);
 
+    void setControlButtons(vector<sf::RectangleShape>& vec);
+    void setControlButtonsText(vector<sf::Text>& vec);
     void putDefaultStones();
     /**
      * initializes the start of the game

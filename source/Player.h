@@ -28,19 +28,19 @@ public:
     explicit Player(Stone stone1);
     virtual ~Player() = default;
 
-    Stone getStone() const;
+    [[nodiscard]] Stone getStone() const;
     /**
      * returns the Stone of the player
      */
-    int getScore() const;
+    [[nodiscard]] int getScore() const;
     /**
-     * returns the score of the player
+     * returns the num of the player
      */
-    void setScore(int score);
+    void setScore(int num);
     /**
      * sets/changes the score of the player
      */
-    virtual bool isBot() const;
+    [[nodiscard]] virtual bool isBot() const;
     /**
      * returns whether the player is a bot or not
      */

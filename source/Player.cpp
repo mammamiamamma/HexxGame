@@ -15,8 +15,8 @@ int Player::getScore() const {
     return score;
 }
 
-void Player::setScore(int score) {
-    this->score = score;
+void Player::setScore(int num) {
+    this->score = num;
 }
 
 bool Player::isBot() const {

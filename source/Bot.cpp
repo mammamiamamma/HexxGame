@@ -41,7 +41,6 @@ std::vector<int> Bot::evaluatemoves(HexBoard &hb) {
                 origposy = posy;
                 chosenx = pos[1].first;
                 choseny = pos[1].second;
-                maxprof = count;
             }
         }
     }
@@ -56,32 +55,62 @@ std::vector<int> Bot::evaluatemoves(HexBoard &hb) {
             chosenx = positionsandmoves[randomIndex][1].first;
             choseny = positionsandmoves[randomIndex][1].second;
             // Generate a random move until the conditions are satisfied
-            if (origposx%2==0){
-                while (
-                        (abs(origposx-chosenx)==1 && origposy-choseny==1) ||
-                        std::abs(origposx - chosenx) >= 2 ||
-                        std::abs(origposy - choseny) >= 2)
-                {
-                    randomIndex = dis(gen);
-                    origposx = positionsandmoves[randomIndex][0].first;
-                    origposy = positionsandmoves[randomIndex][0].second;
-                    chosenx = positionsandmoves[randomIndex][1].first;
-                    choseny = positionsandmoves[randomIndex][1].second;
+            bool decided = false;
+            while (!decided){
+                if (origposx%2==0){
+                    if (
+                            (abs(origposx-chosenx)==1 && origposy-choseny==1) ||
+                            std::abs(origposx - chosenx) >= 2 ||
+                            std::abs(origposy - choseny) >= 2
+                            )
+                    {
+                        randomIndex = dis(gen);
+                        origposx = positionsandmoves[randomIndex][0].first;
+                        origposy = positionsandmoves[randomIndex][0].second;
+                        chosenx = positionsandmoves[randomIndex][1].first;
+                        choseny = positionsandmoves[randomIndex][1].second;
+                    } else decided = true;
+                } else {
+                    if (
+                            (abs(origposx-chosenx)==1 && origposy-choseny==-1) ||
+                            std::abs(origposx - chosenx) >= 2 ||
+                            std::abs(origposy - choseny) >= 2
+                        )
+                    {
+                        randomIndex = dis(gen);
+                        origposx = positionsandmoves[randomIndex][0].first;
+                        origposy = positionsandmoves[randomIndex][0].second;
+                        chosenx = positionsandmoves[randomIndex][1].first;
+                        choseny = positionsandmoves[randomIndex][1].second;
+                    } else decided = true;
                 }
             }
-            else {
-                while (
-                        (abs(origposx-chosenx)==1 && origposy-choseny==-1) ||
-                        std::abs(origposx - chosenx) >= 2 ||
-                        std::abs(origposy - choseny) >= 2)
-                {
-                    randomIndex = dis(gen);
-                    origposx = positionsandmoves[randomIndex][0].first;
-                    origposy = positionsandmoves[randomIndex][0].second;
-                    chosenx = positionsandmoves[randomIndex][1].first;
-                    choseny = positionsandmoves[randomIndex][1].second;
-                }
-            }
+//            if (origposx%2==0){
+//                while (
+//                        (abs(origposx-chosenx)==1 && origposy-choseny==1) ||
+//                        std::abs(origposx - chosenx) >= 2 ||
+//                        std::abs(origposy - choseny) >= 2)
+//                {
+//                    randomIndex = dis(gen);
+//                    origposx = positionsandmoves[randomIndex][0].first;
+//                    origposy = positionsandmoves[randomIndex][0].second;
+//                    chosenx = positionsandmoves[randomIndex][1].first;
+//                    choseny = positionsandmoves[randomIndex][1].second;
+//                }
+//            }
+//            else {
+//                while (
+//                        (abs(origposx-chosenx)==1 && origposy-choseny==-1) ||
+//                        std::abs(origposx - chosenx) >= 2 ||
+//                        std::abs(origposy - choseny) >= 2)
+//                {
+//                    randomIndex = dis(gen);
+//                    origposx = positionsandmoves[randomIndex][0].first;
+//                    origposy = positionsandmoves[randomIndex][0].second;
+//                    chosenx = positionsandmoves[randomIndex][1].first;
+//                    choseny = positionsandmoves[randomIndex][1].second;
+//                }
+//            }
         }
     }
     chosenmove.push_back(origposx);

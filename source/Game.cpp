@@ -27,6 +27,14 @@ Game::Game(HexBoard& b1, Player& p1, Player& p2, Application& app) : b(b1), p1(p
     }
 }
 
+void Game::setControlButtons(vector<sf::RectangleShape>& vec){
+    this->controlButtons = vec;
+}
+
+void Game::setControlButtonsText(vector<sf::Text>& vec){
+    this->controlButtonsText = vec;
+}
+
 void Game::putDefaultStones() {
     b.putStone(0, 4, p1);
     b.putStone(2, 0, p2);
@@ -62,7 +70,7 @@ int Game::registerClickOnTile(sf::Vector2f mouse_pos){
             }
         }
     }
-    if (!found) return 1; //return 1 if click isnt registered as a click on tile
+    if (!found) return 0; //return 0 if click isnt registered as a click on tile
     if (!isOriginalHexSet) {
         if (
                 b.board[posy][posx] == '0' ||
@@ -72,6 +80,7 @@ int Game::registerClickOnTile(sf::Vector2f mouse_pos){
             return 0;
         std::vector<std::vector<int>> piecestolight = b.createPossibleMoves(posx, posy);
         app.displayPossibleMoves(piecestolight, b, posx, posy); //maybe include posx and posy in the array somehow to not pass them onto the method?
+        app.displayShapes(controlButtons, controlButtonsText);
 //        if (!app.displayPossibleMoves(posx, posy, true)) return 0;
         originalHexX = posx;
         originalHexY = posy;
@@ -86,6 +95,7 @@ int Game::registerClickOnTile(sf::Vector2f mouse_pos){
         {
             std::vector<std::vector<int>> piecestolight = b.createPossibleMoves(originalHexX, originalHexY);
             app.displayPossibleMoves(piecestolight, b);
+            app.displayShapes(controlButtons, controlButtonsText);
 //            app.displayPossibleMoves(originalHexX, originalHexY, false);
             originalHexX = -1;
             originalHexY = -1;
@@ -101,6 +111,7 @@ int Game::registerClickOnTile(sf::Vector2f mouse_pos){
         if (b.makeAMove(originalHexY, originalHexX, desty, destx, getPlayerFromStone(currentStone), getPlayerFromStone(otherStone))) {
             std::swap(currentStone, otherStone);
             app.updateShapeBoard(b);
+            app.displayShapes(controlButtons, controlButtonsText);
         } else {
             std::cout << "Invalid move. Please try again." << std::endl;
             return 0;
@@ -108,7 +119,7 @@ int Game::registerClickOnTile(sf::Vector2f mouse_pos){
         isOriginalHexSet = false;
         std::vector<std::vector<int>> piecestolight = b.createPossibleMoves(originalHexX, originalHexY);
         app.displayPossibleMoves(piecestolight, b);
-
+        app.displayShapes(controlButtons, controlButtonsText);
         if (isBot){
             sf::sleep(sf::milliseconds(1000));
             cout << "Bot's move" << endl;
@@ -117,6 +128,7 @@ int Game::registerClickOnTile(sf::Vector2f mouse_pos){
                 cout << "Bot made a move: " << move[1] << " " << move[0] << " to " << move[3] << " " << move[2] << endl;
                 std::swap(currentStone, otherStone);
                 app.updateShapeBoard(b);
+                app.displayShapes(controlButtons, controlButtonsText);
             } else {
                 std::cout << "Invalid move. Please try again." << std::endl;
             }
@@ -194,26 +206,25 @@ void Game::declareWinner(){
 }
 
 int Game::registerClickOnButtons(sf::Vector2f mouse_pos){
-//    int ind = -1;
-//    for (int i = 0; i<controlButtons.size(); i++){
-//        if (Application::isClickedInsideButton(mouse_pos, controlButtons[i])){
-//            ind = i;
-//            break;
-//        }
-//    }
-//    if (ind==-1) return 0; //nothing registered i guess
-//    else {
-//        switch (ind) {
-//            case 0: {
-//                return -1; // code for exiting the game (to main menu)
-//            }
-//            case 1: {
-//                return 2; // code for saving the game
-//            }
-//            default: return 0; //just in case
-//        }
-//    }
-return 0;
+    int ind = -1;
+    for (int i = 0; i<controlButtons.size(); i++){
+        if (controlButtons[i].getGlobalBounds().contains(mouse_pos)){
+            ind = i;
+            break;
+        }
+    }
+    if (ind==-1) return 0; //nothing registered i guess
+    else {
+        switch (ind) {
+            case 0: {
+                return -1; // code for exiting the game (to main menu)
+            }
+            case 1: {
+                return 2; // code for saving the game (not implemented yet)
+            }
+            default: return 0; //just in case
+        }
+    }
 }
 
 int Game::startGame() {
@@ -221,6 +232,7 @@ int Game::startGame() {
 
     sf::Event event{};
     app.initiateShapeBoard(b);
+    app.displayShapes(controlButtons, controlButtonsText);
 
     while (app.window.isOpen()) {
         while (HexBoard::freeSpaces > 0 && p1.getScore() > 0 && p2.getScore() > 0) {
@@ -248,7 +260,7 @@ int Game::startGame() {
                         registerKeyPressed(event.key);
                         break;
                     case sf::Event::Resized:
-                        app.displayShapes();
+                        app.displayShapes(controlButtons, controlButtonsText);
                         break;
                     case sf::Event::Closed:
                         app.window.close();
@@ -258,22 +270,23 @@ int Game::startGame() {
                 }
             }
         }
-        finish:
-        declareWinner();
-        return 0; // game over
-//        std::exit(0); //change it maybe
     }
+    finish:
+    declareWinner();
+    return 0; // game over
+//        std::exit(0); //change it maybe
 }
 
 int Game::startLoadedGame(Stone currStone){
     app.initiateShapeBoard(b);
+    app.displayShapes(controlButtons, controlButtonsText);
     currentStone = currStone;
     if (currentStone == Stone::RED){
         otherStone = Stone::BLUE;
     } else {
         otherStone = Stone::RED;
     }
-    app.displayShapes();
+    app.displayShapes(controlButtons, controlButtonsText);
     sf::Event event{};
     while (app.window.isOpen()) {
         while (HexBoard::freeSpaces > 0 && p1.getScore() > 0 && p2.getScore() > 0) {
@@ -301,7 +314,7 @@ int Game::startLoadedGame(Stone currStone){
                         registerKeyPressed(event.key);
                         break;
                     case sf::Event::Resized:
-                        app.displayShapes();
+                        app.displayShapes(controlButtons, controlButtonsText);
                         break;
                     case sf::Event::Closed:
                         app.window.close();
@@ -311,10 +324,10 @@ int Game::startLoadedGame(Stone currStone){
                 }
             }
         }
-        finish:
-        declareWinner();
-        return 0;
     }
+    finish:
+    declareWinner();
+    return 0;
 }
 
 

@@ -8,6 +8,7 @@
 #include <SFML/Graphics.hpp>
 #include "Application.h"
 
+// note for me: return -1 for "go back", return 0 for i dunno exit i guess (yeah its returned when default and what not), return 1 (in case of loadgame its a successful loading game)
 class Menu {
 public:
     Menu(sf::Font &font, Application& app);
@@ -15,7 +16,6 @@ public:
     bool isFirstPage = true;
     bool isLastPage = false;
     bool isButtonNeeded = false;
-
 private:
     Application& app;
     sf::Font& font;

@@ -32,7 +32,7 @@ public:
      * @param destx destination x coordinate
      * @param p Bot's opponent to turn their pieces to bot's pieces
      */
-    bool isBot() const override;
+    [[nodiscard]] bool isBot() const override;
     /**
      * (overrides the function in Player) returns whether the player is a bot or not
      */

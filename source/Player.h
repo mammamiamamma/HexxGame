@@ -21,6 +21,14 @@ public:
             {0,-2}, {-1,-2}, {-2,-1}, {-2,0}, {-2,1}, {0,2}, {2,1}, {2,0}, {2,-1}, {1,-2},
             {-1,1}, {1,1}
     };
+    std::vector<std::vector<int>> neighborPosForOdd = {
+            {0,-1},{0,1},{1,0},{-1,0},
+            {1,-1},{-1,-1}
+    };
+    std::vector<std::vector<int>> neighborPosForEven = {
+            {0,-1}, {-1,0}, {-1,1},
+            {0,1}, {1,1}, {1,0}
+    };
     std::vector<std::pair<int, int>> positions;
     std::vector<std::vector<std::pair<int, int>>> positionsandmoves;
 
@@ -53,7 +61,6 @@ public:
             }
         }
     }
-
     void createPossibleMoves(HexBoard &hb) {
         findallpositions(hb);
         for (auto& position : positions) {

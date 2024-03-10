@@ -1,12 +1,10 @@
-#include <map>
 #include "Application.h"
 #include "Game.h"
-#include "Menu.h"
 
 void Application::initiateShapeBoard(HexBoard& hb) {
-    int rad = 50;
-    int sideBound = 582; //545+37 mathematically BASED calculation to put the field in the center
-    int topBound = 43/2; //also mathematical
+    float rad = 50;
+    float sideBound = 582; //545+37 mathematically BASED calculation to put the field in the center
+    float topBound = 21.5; //also mathematical
     float linePadding;
     for (int i = 0; i < shapeBoard.size(); i++) {
         sf::Color col;
@@ -91,10 +89,14 @@ sf::RectangleShape Application::createButton(const sf::Vector2f& size, const sf:
     return button;
 }
 
-sf::Text Application::createText(const sf::Font &font, const string &textContent, unsigned int characterSize,
-                                 sf::RectangleShape &targetButton) {
+sf::Text Application::createText(const string &textContent, unsigned int characterSize,
+                                 sf::RectangleShape &targetButton) const {
     sf::Text text(font, textContent, characterSize);
     text.setPosition(getTextPosition(text, targetButton));
+    return text;
+}
+sf::Text Application::createText(const string &textContent, unsigned int characterSize) const {
+    sf::Text text(font, textContent, characterSize);
     return text;
 }
 
@@ -110,7 +112,6 @@ void Application::drawMenu(
         const std::vector<sf::Text>& textArr,
         const std::vector<sf::RectangleShape>& controlButtons,
         const std::vector<sf::Text>& controlButtonsText,
-        sf::Font& font,
         int& pageNum,
         string& totalPagesStr,
         bool isFirstPage,
@@ -137,10 +138,10 @@ void Application::drawMenu(
         if (!isFirstPage) drawButton(controlButtons[1], controlButtonsText[1]);
     }
     sf::Text savefilestext(font, "SAVE FILES", 30);
-    savefilestext.setPosition({static_cast<float>(window.getSize().x/2-255/2),80});
+    savefilestext.setPosition({static_cast<float>(WINDOW_SIZE_X/2-127.5),80});
     window.draw(savefilestext);
     sf::Text pageIndexText(font, "PAGE "+pageStr + " OF " + totalPagesStr, 30);
-    pageIndexText.setPosition({static_cast<float>(window.getSize().x/2-255/2),static_cast<float>(window.getSize().y-70)});
+    pageIndexText.setPosition({static_cast<float>(WINDOW_SIZE_X/2-127.5),static_cast<float>(WINDOW_SIZE_Y-70)});
     window.draw(pageIndexText);
     window.display();
 }

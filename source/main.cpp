@@ -17,13 +17,13 @@ int main() {
         cout << "oops no font" << endl;
         return 1; // Exit if the font cannot be loaded
     }
-
+//    sf::Window window(sf::VideoMode({1920, 1080}), "Hexx Game", sf::Style::Titlebar | sf::Style::Close | sf::Style::Resize);
     sf::RenderWindow window(sf::VideoMode({1920, 1080}), "Hexx Game", sf::Style::Titlebar | sf::Style::Close | sf::Style::Resize);
     sf::RectangleShape background({static_cast<float>(window.getSize().x), static_cast<float>(window.getSize().y)});
     background.setTexture(&texture);
-    Application app(window, background);
-    Menu menu(font, app);
-    menu.runMenu();
+    Application app(window, background, font);
+    Menu menu(app);
+    menu.launchMenu();
 
     return 0;
 }

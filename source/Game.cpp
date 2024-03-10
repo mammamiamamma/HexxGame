@@ -242,13 +242,11 @@ int Game::startGame() {
                         if (event.mouseButton.button != sf::Mouse::Button::Left) {
                             continue;
                         }
-                        auto mouse_pos = sf::Mouse::getPosition(app.window);
-                        auto translated_pos = app.window.mapPixelToCoords(mouse_pos);
-                        int res = registerClickOnTile(translated_pos);
+                        int res = registerClickOnTile(app.window.mapPixelToCoords(sf::Mouse::getPosition(app.window)));
                         if (res==-1){
                             goto finish;
                         } else {
-                            switch (registerClickOnButtons(translated_pos)){
+                            switch (registerClickOnButtons(app.window.mapPixelToCoords(sf::Mouse::getPosition(app.window)))){
                                 case 0: continue;
                                 case -1: return -1;
                                 case 2: saveGame(); //save the game?
@@ -273,8 +271,7 @@ int Game::startGame() {
     }
     finish:
     declareWinner();
-    return 0; // game over
-//        std::exit(0); //change it maybe
+    return 0;
 }
 
 int Game::startLoadedGame(Stone currStone){

@@ -29,6 +29,7 @@ private:
     */
     int launchNewGameMenu();
     int launchLoadGameMenu();
+    int launchSettingsMenu();
     static std::vector<std::string> getFileNames();
     static std::vector<std::string> split(const std::string& s);
     /**
@@ -48,6 +49,7 @@ private:
 
     void initializeMainMenuButtons(vector<sf::RectangleShape>& buttArr, vector<sf::Text>& textArr);
     void initializeNewGameButtons(vector<sf::RectangleShape> &buttArr, vector<sf::Text> &textArr);
+    void initializeSettingsButtons(vector<sf::RectangleShape> &buttArr, vector<sf::Text> &textArr, bool isFullscreen);
 
     static int registerMouseMove(vector<sf::RectangleShape> &buttArr, sf::Vector2f mouse_pos, int ind);
 

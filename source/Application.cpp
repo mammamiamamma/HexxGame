@@ -1,6 +1,17 @@
 #include "Application.h"
 #include "Game.h"
 
+void Application::changeState() {
+    if (isFullscreen) {
+        isFullscreen = false;
+        window.create(sf::VideoMode({1920, 1080}), "Hexx Game", sf::Style::Default, sf::State::Windowed, windowSettings);
+    }
+    else {
+        isFullscreen = true;
+        window.create(sf::VideoMode({1920, 1080}), "Hexx Game", sf::Style::Default, sf::State::Fullscreen, windowSettings);
+    }
+}
+
 void Application::initiateShapeBoard(HexBoard& hb) {
     float rad = 50;
     float sideBound = 582; //545+37 mathematically BASED calculation to put the field in the center
@@ -85,6 +96,12 @@ sf::RectangleShape Application::createButton(const sf::Vector2f& size, const sf:
     button.setSize(size);
     button.setOutlineThickness(5.f);
     button.setOutlineColor(color);
+    button.setFillColor(sf::Color(0,0,0,192));
+    return button;
+}
+sf::RectangleShape Application::createButton(const sf::Vector2f& size, bool drawOutline){
+    sf::RectangleShape button;
+    button.setSize(size);
     button.setFillColor(sf::Color(0,0,0,192));
     return button;
 }

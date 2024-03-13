@@ -64,35 +64,34 @@ public:
     void createPossibleMoves(HexBoard &hb) {
         findallpositions(hb);
         for (auto& position : positions) {
-            if (position.first%2==0){
-                for (auto& possiblemove : possibleMovesForEven) {
-                    int newx = position.first + possiblemove[0];
-                    int newy = position.second + possiblemove[1];
-                    if (newx < 0 || newx >= HexBoard::BOARD_SIZE || newy < 0 || newy >= HexBoard::BOARD_SIZE)
-                        continue;
-                    if (hb.board[newy][newx] == ' ')
-                        continue;
-                    if (hb.board[newy][newx] == '0') {
-                        std::vector<std::pair<int, int>> temp = {position, {newx, newy}};
-                        positionsandmoves.emplace_back(temp);
-                    }
-                }
-            } else {
-                for (auto &possiblemove: possibleMovesForOdd) {
-                    int newx = position.first + possiblemove[0];
-                    int newy = position.second + possiblemove[1];
-                    if (newx < 0 || newx >= HexBoard::BOARD_SIZE || newy < 0 || newy >= HexBoard::BOARD_SIZE)
-                        continue;
-                    if (hb.board[newy][newx] == ' ')
-                        continue;
-                    if (hb.board[newy][newx] == '0') {
-                        std::vector<std::pair<int, int>> temp = {position, {newx, newy}};
-                        positionsandmoves.emplace_back(temp);
-                    }
+            for (auto &possibleMove: position.first % 2 == 0 ? possibleMovesForEven : possibleMovesForOdd) {
+                int newx = position.first + possibleMove[0];
+                int newy = position.second + possibleMove[1];
+                if (newx < 0 || newx >= HexBoard::BOARD_SIZE || newy < 0 || newy >= HexBoard::BOARD_SIZE)
+                    continue;
+                if (hb.board[newy][newx] == ' ')
+                    continue;
+                if (hb.board[newy][newx] == '0') {
+                    std::vector<std::pair<int, int>> temp = {position, {newx, newy}};
+                    positionsandmoves.emplace_back(temp);
                 }
             }
         }
     }
+    std::vector<std::vector<int>> createPossibleMoves(HexBoard &hb, int posx, int posy) {
+        std::vector<std::vector<int>> piecestolight;
+        for (std::vector<int> vec : posx%2==1 ? possibleMovesForOdd : possibleMovesForEven) {
+            int newx = posx + vec[0];
+            int newy = posy + vec[1];
+            if (newx < 0 || newx >= HexBoard::BOARD_SIZE || newy < 0 || newy >= HexBoard::BOARD_SIZE)
+                continue;
+            if (hb.board[newy][newx] == '0') {
+                piecestolight.push_back({ newx, newy });
+            }
+        }
+        return piecestolight;
+    }
+//    void findAllMoves(vector<int>& )
 };
 
 #endif  // PLAYER_H

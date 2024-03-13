@@ -117,28 +117,43 @@ void HexBoard::turnPiecesFriendly(int desty, int destx, Player& p, Player& oppon
     }
 }
 
-std::vector<std::vector<int>> HexBoard::createPossibleMoves(int posx, int posy) {
-    std::vector<std::vector<int>> piecestolight;
-    if (posx%2==1){
-        for (std::vector<int> vec : possibleMovesForOdd) {
-            int newx = posx + vec[0];
-            int newy = posy + vec[1];
-            if (newx < 0 || newx >= HexBoard::BOARD_SIZE || newy < 0 || newy >= HexBoard::BOARD_SIZE)
-                continue;
-            if (board[newy][newx] == '0') {
-                piecestolight.push_back({ newx, newy });
-            }
-        }
-    } else {
-        for (std::vector<int> vec : possibleMovesForEven) {
-            int newx = posx + vec[0];
-            int newy = posy + vec[1];
-            if (newx < 0 || newx >= HexBoard::BOARD_SIZE || newy < 0 || newy >= HexBoard::BOARD_SIZE)
-                    continue;
-            if (board[newy][newx] == '0') {
-                piecestolight.push_back({ newx, newy });
-            }
+//std::vector<std::vector<int>> HexBoard::createPossibleMoves(int posx, int posy) {
+//    std::vector<std::vector<int>> piecestolight;
+//    if (posx%2==1){
+//        for (std::vector<int> vec : possibleMovesForOdd) {
+//            int newx = posx + vec[0];
+//            int newy = posy + vec[1];
+//            if (newx < 0 || newx >= HexBoard::BOARD_SIZE || newy < 0 || newy >= HexBoard::BOARD_SIZE)
+//                continue;
+//            if (board[newy][newx] == '0') {
+//                piecestolight.push_back({ newx, newy });
+//            }
+//        }
+//    } else {
+//        for (std::vector<int> vec : possibleMovesForEven) {
+//            int newx = posx + vec[0];
+//            int newy = posy + vec[1];
+//            if (newx < 0 || newx >= HexBoard::BOARD_SIZE || newy < 0 || newy >= HexBoard::BOARD_SIZE)
+//                    continue;
+//            if (board[newy][newx] == '0') {
+//                piecestolight.push_back({ newx, newy });
+//            }
+//        }
+//    }
+//    return piecestolight;
+//}
+
+bool HexBoard::isGameValid(){
+    int freespaces = 0;
+    int redStones = 0;
+    int blueStones = 0;
+    for (int i = 0; i<BOARD_SIZE; i++){
+        for (int j = 0; j<BOARD_SIZE; j++){
+            if (board[i][j]=='0') freespaces++;
+            if (board[i][j]=='R') redStones++;
+            if (board[i][j]=='B') blueStones++;
         }
     }
-    return piecestolight;
+    if (freespaces == 0 || redStones == 0 || blueStones == 0) return false;
+    else return true;
 }

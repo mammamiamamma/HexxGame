@@ -178,6 +178,7 @@ int Menu::launchMenu() {
                         case 2:
                             playWithBot();
                     }
+                    goto restart;
                 } // restarting the main menu sequence
             }
             break;

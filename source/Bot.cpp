@@ -8,11 +8,10 @@ Bot::Bot(Stone stone) : Player(stone) {}
 
 std::vector<int> Bot::makeMove(HexBoard &hb) {
     std::vector<int> move = {0, 0, 0, 0};
-    createPossibleMoves(hb); //includes findallpositions(hb)
+    if (positionsandmoves.empty()) createPossibleMoves(hb);
     move = evaluatemoves(hb);
     positions.clear();
     positionsandmoves.clear();
-
     return move;
 }
 
@@ -26,21 +25,16 @@ std::vector<int> Bot::evaluatemoves(HexBoard &hb) {
     for (auto& pos : positionsandmoves) {
         int posx = pos[0].first;
         int posy = pos[0].second;
-        if (hb.board[pos[1].second][pos[1].first] == '0') {
-            int count = fakeTPF(pos[1].second, pos[1].first, *this, hb);
-            if (count > maxprof) {
-                origposx = posx;
-                origposy = posy;
-                chosenx = pos[1].first;
-                choseny = pos[1].second;
-                maxprof = count;
-            }
-            else if (count == maxprof && (abs(posx-chosenx)<abs(origposx-chosenx) || abs(posy-choseny)<abs(origposy-choseny))){
-                origposx = posx;
-                origposy = posy;
-                chosenx = pos[1].first;
-                choseny = pos[1].second;
-            }
+        int count = fakeTPF(pos[1].second, pos[1].first, *this, hb);
+        bool isBetterProfit = count > maxprof;
+        bool isSameProfitButCloser = count == maxprof && isMoveCloser(posx, posy, chosenx, choseny, origposx, origposy);
+        if (isBetterProfit || isSameProfitButCloser)
+        {
+            origposx = posx;
+            origposy = posy;
+            chosenx = pos[1].first;
+            choseny = pos[1].second;
+            maxprof = count;
         }
     }
     if (maxprof == 0) {
@@ -91,6 +85,11 @@ std::vector<int> Bot::evaluatemoves(HexBoard &hb) {
     chosenmove.emplace_back(chosenx);
     chosenmove.emplace_back(choseny);
     return chosenmove;
+}
+bool Bot::isMoveCloser(int posx, int posy, int chosenx, int choseny, int origposx, int origposy) {
+    int distanceCurrent = std::abs(origposx - chosenx) + std::abs(origposy - choseny);
+    int distanceNew = std::abs(posx - chosenx) + std::abs(posy - choseny);
+    return distanceNew < distanceCurrent;
 }
 
 int Bot::fakeTPF(int desty, int destx, Player& p, HexBoard &hb) {

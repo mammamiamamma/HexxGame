@@ -57,6 +57,7 @@ int Game::registerClickOnTile(sf::Vector2f mouse_pos){
     getPlayerFromStone(currentStone).createPossibleMoves(b);
     if (getPlayerFromStone(currentStone).positionsandmoves.empty()) return -1;
     else {
+        getPlayerFromStone(currentStone).positions.clear();
         getPlayerFromStone(currentStone).positionsandmoves.clear();
     }
     bool found = false;
@@ -78,7 +79,7 @@ int Game::registerClickOnTile(sf::Vector2f mouse_pos){
                 b.board[posy][posx] == ' '
                 )
             return 0;
-        std::vector<std::vector<int>> piecestolight = b.createPossibleMoves(posx, posy);
+        std::vector<std::vector<int>> piecestolight = getPlayerFromStone(currentStone).createPossibleMoves( b, posx, posy);
         app.displayPossibleMoves(piecestolight, b, posx, posy); //maybe include posx and posy in the array somehow to not pass them onto the method?
         app.displayShapes(controlButtons, controlButtonsText);
 //        if (!app.displayPossibleMoves(posx, posy, true)) return 0;
@@ -93,7 +94,7 @@ int Game::registerClickOnTile(sf::Vector2f mouse_pos){
                 (b.board[posy][posx] == ' ')
                 )
         {
-            std::vector<std::vector<int>> piecestolight = b.createPossibleMoves(originalHexX, originalHexY);
+            std::vector<std::vector<int>> piecestolight = getPlayerFromStone(currentStone).createPossibleMoves( b, posx, posy);
             app.displayPossibleMoves(piecestolight, b);
             app.displayShapes(controlButtons, controlButtonsText);
 //            app.displayPossibleMoves(originalHexX, originalHexY, false);
@@ -106,18 +107,22 @@ int Game::registerClickOnTile(sf::Vector2f mouse_pos){
         }
         destx = posx;
         desty = posy;
-        getPlayerFromStone(currentStone);
-        getPlayerFromStone(otherStone);
+//        getPlayerFromStone(currentStone);
+//        getPlayerFromStone(otherStone);
         if (b.makeAMove(originalHexY, originalHexX, desty, destx, getPlayerFromStone(currentStone), getPlayerFromStone(otherStone))) {
             std::swap(currentStone, otherStone);
             app.updateShapeBoard(b);
             app.displayShapes(controlButtons, controlButtonsText);
+            if (!b.isGameValid()){
+                sf::sleep(sf::milliseconds(1000));
+                return -1;
+            }
         } else {
             std::cout << "Invalid move. Please try again." << std::endl;
             return 0;
         }
         isOriginalHexSet = false;
-        std::vector<std::vector<int>> piecestolight = b.createPossibleMoves(originalHexX, originalHexY);
+        std::vector<std::vector<int>> piecestolight = getPlayerFromStone(currentStone).createPossibleMoves( b, posx, posy);
         app.displayPossibleMoves(piecestolight, b);
         app.displayShapes(controlButtons, controlButtonsText);
         if (isBot){
@@ -129,6 +134,10 @@ int Game::registerClickOnTile(sf::Vector2f mouse_pos){
                 std::swap(currentStone, otherStone);
                 app.updateShapeBoard(b);
                 app.displayShapes(controlButtons, controlButtonsText);
+                if (!b.isGameValid()){
+                    sf::sleep(sf::milliseconds(1000));
+                    return -1;
+                }
             } else {
                 std::cout << "Invalid move. Please try again." << std::endl;
             }

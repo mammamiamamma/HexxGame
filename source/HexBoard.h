@@ -122,6 +122,7 @@ public:
      * @param p Player who makes the move
      * @param opponent Opponent player, used their turn pieces friendly
      */
-    std::vector<std::vector<int>> createPossibleMoves(int posx, int posy);
+//    std::vector<std::vector<int>> createPossibleMoves(int posx, int posy);
+    bool isGameValid();
 };
 #endif // HEXBOARD_H

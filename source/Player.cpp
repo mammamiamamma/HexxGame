@@ -22,3 +22,4 @@ void Player::setScore(int num) {
 bool Player::isBot() const {
     return false;
 }
+

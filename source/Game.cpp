@@ -16,23 +16,17 @@ int desty;
 int originalHexX = 0;
 int originalHexY = 0;
 bool isOriginalHexSet = false;
-bool isBot;
 
 Game::Game(HexBoard& b1, Player& p1, Player& p2, Application& app) : b(b1), p1(p1), p2(p2), app(app), bot(nullptr) { //maybe change back
     this->currentStone = p1.getStone();
     this->otherStone = p2.getStone();
     if (p2.isBot()) {
-        isBot = true;
         bot = dynamic_cast<Bot*>(&this->p2);
     }
 }
 
-void Game::setControlButtons(vector<sf::RectangleShape>& vec){
+void Game::setControlButtons(vector<Button>& vec){
     this->controlButtons = vec;
-}
-
-void Game::setControlButtonsText(vector<sf::Text>& vec){
-    this->controlButtonsText = vec;
 }
 
 void Game::putDefaultStones() {
@@ -81,7 +75,7 @@ int Game::registerClickOnTile(sf::Vector2f mouse_pos){
             return 0;
         std::vector<std::vector<int>> piecestolight = getPlayerFromStone(currentStone).createPossibleMoves( b, posx, posy);
         app.displayPossibleMoves(piecestolight, b, posx, posy); //maybe include posx and posy in the array somehow to not pass them onto the method?
-        app.displayShapes(controlButtons, controlButtonsText);
+        app.displayShapes(controlButtons);
 //        if (!app.displayPossibleMoves(posx, posy, true)) return 0;
         originalHexX = posx;
         originalHexY = posy;
@@ -96,7 +90,7 @@ int Game::registerClickOnTile(sf::Vector2f mouse_pos){
         {
             std::vector<std::vector<int>> piecestolight = getPlayerFromStone(currentStone).createPossibleMoves( b, posx, posy);
             app.displayPossibleMoves(piecestolight, b);
-            app.displayShapes(controlButtons, controlButtonsText);
+            app.displayShapes(controlButtons);
 //            app.displayPossibleMoves(originalHexX, originalHexY, false);
             originalHexX = -1;
             originalHexY = -1;
@@ -112,7 +106,7 @@ int Game::registerClickOnTile(sf::Vector2f mouse_pos){
         if (b.makeAMove(originalHexY, originalHexX, desty, destx, getPlayerFromStone(currentStone), getPlayerFromStone(otherStone))) {
             std::swap(currentStone, otherStone);
             app.updateShapeBoard(b);
-            app.displayShapes(controlButtons, controlButtonsText);
+            app.displayShapes(controlButtons);
             if (!b.isGameValid()){
                 sf::sleep(sf::milliseconds(1000));
                 return -1;
@@ -124,8 +118,9 @@ int Game::registerClickOnTile(sf::Vector2f mouse_pos){
         isOriginalHexSet = false;
         std::vector<std::vector<int>> piecestolight = getPlayerFromStone(currentStone).createPossibleMoves( b, posx, posy);
         app.displayPossibleMoves(piecestolight, b);
-        app.displayShapes(controlButtons, controlButtonsText);
-        if (isBot){
+        app.displayShapes(controlButtons);
+
+        if (p2.isBot()){
             sf::sleep(sf::milliseconds(1000));
             cout << "Bot's move" << endl;
             vector<int> move = bot->makeMove(b);
@@ -133,7 +128,7 @@ int Game::registerClickOnTile(sf::Vector2f mouse_pos){
                 cout << "Bot made a move: " << move[1] << " " << move[0] << " to " << move[3] << " " << move[2] << endl;
                 std::swap(currentStone, otherStone);
                 app.updateShapeBoard(b);
-                app.displayShapes(controlButtons, controlButtonsText);
+                app.displayShapes(controlButtons);
                 if (!b.isGameValid()){
                     sf::sleep(sf::milliseconds(1000));
                     return -1;
@@ -161,6 +156,11 @@ void Game::saveGame(){
         return; // Return an error code
     }
     if (outputFile.is_open()) {
+        if (p2.isBot()) {
+            outputFile << "Bot" << '\n';
+        } else {
+            outputFile << "Player" << '\n';
+        }
         for (int i = 0; i < 9; ++i) {
             for (int j = 0; j < 9; ++j) {
                 switch(b.board[i][j]) {
@@ -183,12 +183,10 @@ void Game::saveGame(){
         outputFile << StoneHelper::getName(currentStone) << '\n';
         outputFile << HexBoard::freeSpaces << '\n';
         outputFile << p1.getScore() << '\n';
-        if (isBot) {
+        if (p2.isBot()) {
             outputFile << bot->getScore() << '\n';
-            outputFile << "Bot" << '\n';
         } else {
             outputFile << p2.getScore() << '\n';
-            outputFile << "Player" << '\n';
         }
         outputFile.close();
         cout << "Game saved to "<< filePath+filename << endl;
@@ -217,7 +215,7 @@ void Game::declareWinner(){
 int Game::registerClickOnButtons(sf::Vector2f mouse_pos){
     int ind = -1;
     for (int i = 0; i<controlButtons.size(); i++){
-        if (controlButtons[i].getGlobalBounds().contains(mouse_pos)){
+        if (controlButtons[i].getShape().getGlobalBounds().contains(mouse_pos)){
             ind = i;
             break;
         }
@@ -241,7 +239,7 @@ int Game::startGame() {
 
     sf::Event event{};
     app.initiateShapeBoard(b);
-    app.displayShapes(controlButtons, controlButtonsText);
+    app.displayShapes(controlButtons);
 
     while (app.window.isOpen()) {
         while (HexBoard::freeSpaces > 0 && p1.getScore() > 0 && p2.getScore() > 0) {
@@ -267,7 +265,7 @@ int Game::startGame() {
                         registerKeyPressed(event.key);
                         break;
                     case sf::Event::Resized:
-                        app.displayShapes(controlButtons, controlButtonsText);
+                        app.displayShapes(controlButtons);
                         break;
                     case sf::Event::Closed:
                         app.window.close();
@@ -285,14 +283,14 @@ int Game::startGame() {
 
 int Game::startLoadedGame(Stone currStone){
     app.initiateShapeBoard(b);
-    app.displayShapes(controlButtons, controlButtonsText);
+    app.displayShapes(controlButtons);
     currentStone = currStone;
     if (currentStone == Stone::RED){
         otherStone = Stone::BLUE;
     } else {
         otherStone = Stone::RED;
     }
-    app.displayShapes(controlButtons, controlButtonsText);
+    app.displayShapes(controlButtons);
     sf::Event event{};
     while (app.window.isOpen()) {
         while (HexBoard::freeSpaces > 0 && p1.getScore() > 0 && p2.getScore() > 0) {
@@ -320,7 +318,7 @@ int Game::startLoadedGame(Stone currStone){
                         registerKeyPressed(event.key);
                         break;
                     case sf::Event::Resized:
-                        app.displayShapes(controlButtons, controlButtonsText);
+                        app.displayShapes(controlButtons);
                         break;
                     case sf::Event::Closed:
                         app.window.close();

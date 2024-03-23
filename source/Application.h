@@ -10,6 +10,7 @@
 #include <sstream>
 #include <cmath>
 #include "HexBoard.h"
+#include "ui/ButtonGenerator.h"
 
 class Application {
 private:
@@ -32,6 +33,7 @@ public:
     sf::RenderWindow& window;
     sf::RectangleShape background;
     sf::Font& font;
+    ButtonGenerator generator;
 //    sf::WindowHandle handle(sf::VideoMode({1920, 1080}), "Hexx Game", sf::Style::Titlebar | sf::Style::Close | sf::Style::Resize, sf::State::Fullscreen)
     float WINDOW_SIZE_X; //made it float to silence the conversion warnings in Menu.cpp
     float WINDOW_SIZE_Y;
@@ -42,6 +44,8 @@ public:
         WINDOW_SIZE_X = (float) window.getSize().x;
         WINDOW_SIZE_Y = (float) window.getSize().y;
         isFullscreen = false;
+        generator = ButtonGenerator(font, 50);
+        generator.setColor(sf::Color::White);
     }
 
     void changeState();
@@ -57,11 +61,11 @@ public:
      */
     void displayPossibleMoves(std::vector<std::vector<int>>& piecesToLight, HexBoard& hb, int posx, int posy);
     void displayPossibleMoves(std::vector<std::vector<int>>& piecesToLight, HexBoard& hb);
-    static sf::RectangleShape createButton(const sf::Vector2f& size);
-    static sf::RectangleShape createButton(const sf::Vector2f& size, const sf::Color& color);
-    static sf::RectangleShape createButton(const sf::Vector2f& size, bool drawOutline); //obviously change later
-    static sf::Vector2f getTextPosition(sf::Text &text, const sf::RectangleShape &rectangle);
-    sf::Text createText(const std::string& textContent, unsigned int characterSize, sf::RectangleShape& targetButton) const;
+//    static sf::RectangleShape createButton(const sf::Vector2f& size);
+//    static sf::RectangleShape createButton(const sf::Vector2f& size, const sf::Color& color);
+//    static sf::RectangleShape createButton(const sf::Vector2f& size, bool drawOutline); //obviously change later
+//    static sf::Vector2f getTextPosition(sf::Text &text, const sf::RectangleShape &rectangle);
+//    sf::Text createText(const std::string& textContent, unsigned int characterSize, sf::RectangleShape& targetButton) const;
     sf::Text createText(const string &textContent, unsigned int characterSize) const;
     /**
      * displays the possible moves of a piece
@@ -71,17 +75,19 @@ public:
      * @param indicator whether to highlight the possible moves or not
      */
 
-    void drawButton(const sf::RectangleShape& b, const sf::Text& text);
-    void drawMenu(const std::vector<sf::RectangleShape>& buttArr, const std::vector<sf::Text>& textArr);
-    void drawMenu(const std::vector<sf::RectangleShape> &buttArr, const std::vector<sf::Text> &textArr,
-                  const std::vector<sf::RectangleShape>& controlButtons,
-                  const std::vector<sf::Text>& controlButtonsText,
+//    void drawButton(const sf::RectangleShape& b, const sf::Text& text);
+    void drawButton(Button& button);
+    void drawButton(vector<Button>& button);
+//    void drawMenu(const std::vector<sf::RectangleShape>& buttArr, const std::vector<sf::Text>& textArr);
+    void drawMenu(std::vector<Button>& buttArr);
+    void drawMenu(std::vector<Button> &buttArr,
+                  std::vector<Button>& controlButtons,
                   int& pageNum,
                   string& totalPagesStr,
                   bool isFirstPage,
                   bool isLastPage,
                   bool isButtonNeeded);
-    void displayShapes(vector<sf::RectangleShape>& buttArr, vector<sf::Text>& textArr);
+    void displayShapes(vector<Button>& buttArr);
     sf::Color getTileColor(const char& tileContent);
     sf::Color getBorderColor(const char& tileContent);
     static bool isClickedInsideTile(sf::Vector2f point, const sf::CircleShape& tile);

@@ -124,5 +124,7 @@ public:
      */
 //    std::vector<std::vector<int>> createPossibleMoves(int posx, int posy);
     bool isGameValid();
+    void restoreDefaultState();
+    ~HexBoard() = default;
 };
 #endif // HEXBOARD_H

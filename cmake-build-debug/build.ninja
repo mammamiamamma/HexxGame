@@ -113,6 +113,30 @@ build CMakeFiles/HexxGame.dir/source/Menu.cpp.obj: CXX_COMPILER__HexxGame_Debug 
   OBJECT_DIR = CMakeFiles\HexxGame.dir
   OBJECT_FILE_DIR = CMakeFiles\HexxGame.dir\source
 
+build CMakeFiles/HexxGame.dir/source/ui/Button.cpp.obj: CXX_COMPILER__HexxGame_Debug C$:/Users/Ilya/CLionProjects/HexxGame/source/ui/Button.cpp || cmake_object_order_depends_target_HexxGame
+  DEFINES = -DSFML_STATIC
+  DEP_FILE = CMakeFiles\HexxGame.dir\source\ui\Button.cpp.obj.d
+  FLAGS = -g -fdiagnostics-color=always -std=gnu++23
+  INCLUDES = -IC:/Users/Ilya/CLionProjects/HexxGame/cmake-build-debug/_deps/sfml-src/include
+  OBJECT_DIR = CMakeFiles\HexxGame.dir
+  OBJECT_FILE_DIR = CMakeFiles\HexxGame.dir\source\ui
+
+build CMakeFiles/HexxGame.dir/source/ui/ButtonGenerator.cpp.obj: CXX_COMPILER__HexxGame_Debug C$:/Users/Ilya/CLionProjects/HexxGame/source/ui/ButtonGenerator.cpp || cmake_object_order_depends_target_HexxGame
+  DEFINES = -DSFML_STATIC
+  DEP_FILE = CMakeFiles\HexxGame.dir\source\ui\ButtonGenerator.cpp.obj.d
+  FLAGS = -g -fdiagnostics-color=always -std=gnu++23
+  INCLUDES = -IC:/Users/Ilya/CLionProjects/HexxGame/cmake-build-debug/_deps/sfml-src/include
+  OBJECT_DIR = CMakeFiles\HexxGame.dir
+  OBJECT_FILE_DIR = CMakeFiles\HexxGame.dir\source\ui
+
+build CMakeFiles/HexxGame.dir/source/MenuHandler.cpp.obj: CXX_COMPILER__HexxGame_Debug C$:/Users/Ilya/CLionProjects/HexxGame/source/MenuHandler.cpp || cmake_object_order_depends_target_HexxGame
+  DEFINES = -DSFML_STATIC
+  DEP_FILE = CMakeFiles\HexxGame.dir\source\MenuHandler.cpp.obj.d
+  FLAGS = -g -fdiagnostics-color=always -std=gnu++23
+  INCLUDES = -IC:/Users/Ilya/CLionProjects/HexxGame/cmake-build-debug/_deps/sfml-src/include
+  OBJECT_DIR = CMakeFiles\HexxGame.dir
+  OBJECT_FILE_DIR = CMakeFiles\HexxGame.dir\source
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target HexxGame
@@ -121,7 +145,7 @@ build CMakeFiles/HexxGame.dir/source/Menu.cpp.obj: CXX_COMPILER__HexxGame_Debug 
 #############################################
 # Link the executable HexxGame.exe
 
-build HexxGame.exe: CXX_EXECUTABLE_LINKER__HexxGame_Debug CMakeFiles/HexxGame.dir/source/main.cpp.obj CMakeFiles/HexxGame.dir/source/HexBoard.cpp.obj CMakeFiles/HexxGame.dir/source/Player.cpp.obj CMakeFiles/HexxGame.dir/source/StoneHelper.cpp.obj CMakeFiles/HexxGame.dir/source/Bot.cpp.obj CMakeFiles/HexxGame.dir/source/Application.cpp.obj CMakeFiles/HexxGame.dir/source/Game.cpp.obj CMakeFiles/HexxGame.dir/source/Menu.cpp.obj | _deps/sfml-build/lib/libsfml-system-s-d.a _deps/sfml-build/lib/libsfml-window-s-d.a _deps/sfml-build/lib/libsfml-graphics-s-d.a _deps/sfml-build/lib/libsfml-window-s-d.a _deps/sfml-build/lib/libsfml-system-s-d.a _deps/sfml-src/extlibs/libs-mingw/x64/libfreetype.a || _deps/sfml-build/lib/libsfml-graphics-s-d.a _deps/sfml-build/lib/libsfml-system-s-d.a _deps/sfml-build/lib/libsfml-window-s-d.a
+build HexxGame.exe: CXX_EXECUTABLE_LINKER__HexxGame_Debug CMakeFiles/HexxGame.dir/source/main.cpp.obj CMakeFiles/HexxGame.dir/source/HexBoard.cpp.obj CMakeFiles/HexxGame.dir/source/Player.cpp.obj CMakeFiles/HexxGame.dir/source/StoneHelper.cpp.obj CMakeFiles/HexxGame.dir/source/Bot.cpp.obj CMakeFiles/HexxGame.dir/source/Application.cpp.obj CMakeFiles/HexxGame.dir/source/Game.cpp.obj CMakeFiles/HexxGame.dir/source/Menu.cpp.obj CMakeFiles/HexxGame.dir/source/ui/Button.cpp.obj CMakeFiles/HexxGame.dir/source/ui/ButtonGenerator.cpp.obj CMakeFiles/HexxGame.dir/source/MenuHandler.cpp.obj | _deps/sfml-build/lib/libsfml-system-s-d.a _deps/sfml-build/lib/libsfml-window-s-d.a _deps/sfml-build/lib/libsfml-graphics-s-d.a _deps/sfml-build/lib/libsfml-window-s-d.a _deps/sfml-build/lib/libsfml-system-s-d.a _deps/sfml-src/extlibs/libs-mingw/x64/libfreetype.a || _deps/sfml-build/lib/libsfml-graphics-s-d.a _deps/sfml-build/lib/libsfml-system-s-d.a _deps/sfml-build/lib/libsfml-window-s-d.a
   FLAGS = -g
   LINK_LIBRARIES = _deps/sfml-build/lib/libsfml-system-s-d.a  _deps/sfml-build/lib/libsfml-window-s-d.a  _deps/sfml-build/lib/libsfml-graphics-s-d.a  _deps/sfml-build/lib/libsfml-window-s-d.a  _deps/sfml-build/lib/libsfml-system-s-d.a  -lwinmm  -lopengl32  -lgdi32  _deps/sfml-src/extlibs/libs-mingw/x64/libfreetype.a  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\HexxGame.dir

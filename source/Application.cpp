@@ -70,65 +70,91 @@ bool Application::isClickedInsideTile(const sf::Vector2f point, const sf::Circle
     return tileBoxX.getGlobalBounds().contains(point) || tileBoxY.getGlobalBounds().contains(point);
 }
 
-void Application::drawMenu(const std::vector<sf::RectangleShape>& buttArr, const std::vector<sf::Text>& textArr) {
+//void Application::drawMenu(const std::vector<sf::RectangleShape>& buttArr, const std::vector<sf::Text>& textArr) {
+//    window.clear();
+//    window.draw(background);
+//    for (const auto& button : buttArr) {
+//        window.draw(button);
+//    }
+//    for (const auto& text : textArr) {
+//        window.draw(text);
+//    }
+//    window.display();
+//}
+
+void Application::drawButton(Button& button) {
+    window.draw(button.getShape());
+    for (const auto& text : button.getText()) {
+        window.draw(text);
+    }
+}
+
+void Application::drawButton(vector<Button>& buttonArr) {
+    for (auto& obj : buttonArr) {
+        window.draw(obj.getShape());
+        for (const auto& text : obj.getText()) {
+            window.draw(text);
+        }
+    }
+}
+
+void Application::drawMenu(vector<Button>& buttonArr) {
     window.clear();
     window.draw(background);
-    for (const auto& button : buttArr) {
-        window.draw(button);
-    }
-    for (const auto& text : textArr) {
-        window.draw(text);
+    for (auto& obj : buttonArr) {
+        window.draw(obj.getShape());
+        for (const auto& text : obj.getText()) {
+            window.draw(text);
+        }
     }
     window.display();
 }
 
-sf::RectangleShape Application::createButton(const sf::Vector2f& size){
-    sf::RectangleShape button;
-    button.setSize(size);
-    button.setOutlineThickness(5.f);
-    button.setOutlineColor(sf::Color::White);
-    button.setFillColor(sf::Color(0,0,0,192));
-    return button;
-}
-
-sf::RectangleShape Application::createButton(const sf::Vector2f& size, const sf::Color& color){
-    sf::RectangleShape button;
-    button.setSize(size);
-    button.setOutlineThickness(5.f);
-    button.setOutlineColor(color);
-    button.setFillColor(sf::Color(0,0,0,192));
-    return button;
-}
-sf::RectangleShape Application::createButton(const sf::Vector2f& size, bool drawOutline){
-    sf::RectangleShape button;
-    button.setSize(size);
-    button.setFillColor(sf::Color(0,0,0,192));
-    return button;
-}
-
-sf::Text Application::createText(const string &textContent, unsigned int characterSize,
-                                 sf::RectangleShape &targetButton) const {
-    sf::Text text(font, textContent, characterSize);
-    text.setPosition(getTextPosition(text, targetButton));
-    return text;
-}
+//sf::RectangleShape Application::createButton(const sf::Vector2f& size){
+//    sf::RectangleShape button;
+//    button.setSize(size);
+//    button.setOutlineThickness(5.f);
+//    button.setOutlineColor(sf::Color::White);
+//    button.setFillColor(sf::Color(0,0,0,192));
+//    return button;
+//}
+//
+//sf::RectangleShape Application::createButton(const sf::Vector2f& size, const sf::Color& color){
+//    sf::RectangleShape button;
+//    button.setSize(size);
+//    button.setOutlineThickness(5.f);
+//    button.setOutlineColor(color);
+//    button.setFillColor(sf::Color(0,0,0,192));
+//    return button;
+//}
+//sf::RectangleShape Application::createButton(const sf::Vector2f& size, bool drawOutline){
+//    sf::RectangleShape button;
+//    button.setSize(size);
+//    button.setFillColor(sf::Color(0,0,0,192));
+//    return button;
+//}
+//
+//sf::Text Application::createText(const string &textContent, unsigned int characterSize,
+//                                 sf::RectangleShape &targetButton) const {
+//    sf::Text text(font, textContent, characterSize);
+//    text.setPosition(getTextPosition(text, targetButton));
+//    return text;
+//}
 sf::Text Application::createText(const string &textContent, unsigned int characterSize) const {
     sf::Text text(font, textContent, characterSize);
     return text;
 }
-
-sf::Vector2f Application::getTextPosition(sf::Text& text, const sf::RectangleShape& rectangle) {
-    sf::FloatRect textBounds = text.getLocalBounds();
-    float xPosition = rectangle.getPosition().x + (rectangle.getSize().x - textBounds.width) / 2 - textBounds.left;
-    float yPosition = rectangle.getPosition().y + (rectangle.getSize().y - textBounds.height) / 2 - textBounds.top;
-    return {xPosition, yPosition};
-}
+//
+//sf::Vector2f Application::getTextPosition(sf::Text& text, const sf::RectangleShape& rectangle) {
+//    sf::FloatRect textBounds = text.getLocalBounds();
+//    float xPosition = rectangle.getPosition().x + (rectangle.getSize().x - textBounds.width) / 2 - textBounds.left;
+//    float yPosition = rectangle.getPosition().y + (rectangle.getSize().y - textBounds.height) / 2 - textBounds.top;
+//    return {xPosition, yPosition};
+//}
 
 void Application::drawMenu(
-        const std::vector<sf::RectangleShape>& buttArr,
-        const std::vector<sf::Text>& textArr,
-        const std::vector<sf::RectangleShape>& controlButtons,
-        const std::vector<sf::Text>& controlButtonsText,
+        std::vector<Button>& buttArr,
+        std::vector<Button>& controlButtons,
         int& pageNum,
         string& totalPagesStr,
         bool isFirstPage,
@@ -141,18 +167,15 @@ void Application::drawMenu(
     ss >> pageStr;
     window.clear();
     window.draw(background);
-    window.draw(buttArr[0]);
-    drawButton(controlButtons[0], controlButtonsText[0]);
+    window.draw(buttArr[0].getShape());
+    drawButton(controlButtons[0]);
     for (int i = 1 + pageNum*5, j = i; i<j+5 && i<buttArr.size(); i++){
-        window.draw(buttArr[i]);
-    }
-    for (int i = pageNum*30, j = i; i<j+30 && i<textArr.size(); i++){
-        window.draw(textArr[i]);
+        drawButton(buttArr[i]);
     }
 
     if (isButtonNeeded) {
-        if (!isLastPage) drawButton(controlButtons[2], controlButtonsText[2]);
-        if (!isFirstPage) drawButton(controlButtons[1], controlButtonsText[1]);
+        if (!isLastPage) drawButton(controlButtons[2]);
+        if (!isFirstPage) drawButton(controlButtons[1]);
     }
     sf::Text savefilestext(font, "SAVE FILES", 30);
     savefilestext.setPosition({static_cast<float>(WINDOW_SIZE_X/2-127.5),80});
@@ -163,19 +186,16 @@ void Application::drawMenu(
     window.display();
 }
 
-void Application::drawButton(const sf::RectangleShape& b, const sf::Text& text) {
-    window.draw(b);
-    window.draw(text);
-}
+//void Application::drawButton(const sf::RectangleShape& b, const sf::Text& text) {
+//    window.draw(b);
+//    window.draw(text);
+//}
 
-void Application::displayShapes(vector<sf::RectangleShape>& buttArr, vector<sf::Text>& textArr){
+void Application::displayShapes(vector<Button>& buttArr){
     window.clear();
     window.draw(background);
-    for (const auto& t : buttArr){
-        window.draw(t);
-    }
-    for (const auto& t : textArr){
-        window.draw(t);
+    for (auto& butt : buttArr){
+        drawButton(butt);
     }
     for (auto & i : shapeBoard)
     {

@@ -7,7 +7,6 @@
 #ifndef HEXXGAME_BUTTON_H
 #define HEXXGAME_BUTTON_H
 
-//using namespace sf;
 using namespace std;
 class Button {
     private:
@@ -16,6 +15,7 @@ class Button {
     vector<sf::Text> buttonText;
 
     public:
+    bool isActiveButton = true;
     Button() = default;
     sf::Vector2f getTextPosition(const sf::Text& text);
     Button(sf::Vector2f size, const sf::Color& color);

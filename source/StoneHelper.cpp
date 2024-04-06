@@ -7,9 +7,6 @@
 char StoneHelper::getName(Stone stone) {
     if (stone == Stone::RED) {
         return 'R';
-    } else if (stone == Stone::BLUE) {
-        return 'B';
-    } else {
-        return 'U'; //change to throwing error later
     }
+    return 'B';
 }

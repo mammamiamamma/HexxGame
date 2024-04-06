@@ -26,28 +26,6 @@ Menu::Menu(Application& app)
         : app(app) {
 }
 
-//void Menu::initializeMainMenuButtons(vector<sf::RectangleShape>& buttArr, vector<sf::Text>& textArr) const {
-//    sf::RectangleShape newGameButton = Application::createButton({500, 150});
-//    sf::RectangleShape loadGameButton = Application::createButton({500, 150});
-//    sf::RectangleShape settingsButton = Application::createButton({500, 150});
-//    sf::RectangleShape exitButton = Application::createButton({500, 150});
-//
-//    newGameButton.setPosition({static_cast<float>(app.WINDOW_SIZE_X / 2.f - newGameButton.getSize().x / 2.f), static_cast<float>(50)});
-//    loadGameButton.setPosition({static_cast<float>(app.WINDOW_SIZE_X / 2 - loadGameButton.getSize().x / 2), static_cast<float>(50 + app.WINDOW_SIZE_Y / 4)});
-//    settingsButton.setPosition({static_cast<float>(app.WINDOW_SIZE_X / 2 - exitButton.getSize().x/2), static_cast<float>(50+2*app.WINDOW_SIZE_Y / 4)});
-//    exitButton.setPosition({static_cast<float>(app.WINDOW_SIZE_X / 2 - exitButton.getSize().x/2), static_cast<float>(50+3*app.WINDOW_SIZE_Y / 4)});
-//
-//    buttArr.emplace_back(newGameButton);
-//    buttArr.emplace_back(loadGameButton);
-//    buttArr.emplace_back(settingsButton);
-//    buttArr.emplace_back(exitButton);
-//
-//    textArr.emplace_back(app.createText("NEW GAME", 50, newGameButton));
-//    textArr.emplace_back(app.createText("LOAD GAME", 50, loadGameButton));
-//    textArr.emplace_back(app.createText("SETTINGS", 50, settingsButton));
-//    textArr.emplace_back(app.createText("EXIT", 50, exitButton));
-//}
-
 void Menu::initializeMainMenuButtons(vector<Button>& buttArr) const {
     Button newGameButton = app.generator.getButton("NEW GAME", 50, sf::Vector2f({500, 150}));
     Button loadGameButton = app.generator.getButton("LOAD GAME", 50, sf::Vector2f({500, 150}));
@@ -80,14 +58,14 @@ void Menu::initializeNewGameButtons(vector<Button>& buttArr) const {
 }
 
 void Menu::initializeSettingsButtons(vector<Button>& buttArr, bool isFullscreen) const {
-    Button screenModeText = app.generator.getButton("SCREEN MODE", 40, {500, 150});
+    Button screenModeText = app.generator.getLinelessButton("SCREEN MODE", 40, {500, 150});
     Button screenModeButton;
     if (isFullscreen){
         screenModeButton = app.generator.getButton("FULLSCREEN", 40, {500, 150});
     } else {
         screenModeButton = app.generator.getButton("WINDOWED", 40, {500, 150});
     }
-    Button settingsText = app.generator.getButton("SETTINGS", 50, {500, 150});
+    Button settingsText = app.generator.getLinelessButton("SETTINGS", 50, {500, 150});
     Button backButton = app.generator.getButton("BACK", 50, {500, 150});
 
     screenModeButton.setPosition({static_cast<float>(app.WINDOW_SIZE_X / 2 + screenModeText.getShape().getSize().x/2 + 100 - screenModeButton.getShape().getSize().x / 2), static_cast<float>(app.WINDOW_SIZE_Y/2-screenModeButton.getShape().getSize().y/2)});
@@ -95,29 +73,12 @@ void Menu::initializeSettingsButtons(vector<Button>& buttArr, bool isFullscreen)
     settingsText.setPosition({static_cast<float>(app.WINDOW_SIZE_X / 2 - settingsText.getShape().getSize().x / 2), static_cast<float>(50)});
     backButton.setPosition({50, static_cast<float>(app.WINDOW_SIZE_Y-80-100)});
 
-//    textArr.emplace_back(app.createText("SETTINGS", 50, settingsText));
-//    textArr.emplace_back(app.createText("SCREEN MODE", 40, screenModeText));
-//    if (isFullscreen){
-//        textArr.emplace_back(app.createText("FULLSCREEN", 40, screenModeButton));
-//    } else {
-//        textArr.emplace_back(app.createText("WINDOWED", 40, screenModeButton));
-//    }
-//    textArr.emplace_back(app.createText("BACK", 50, backButton));
-
     buttArr.emplace_back(settingsText);
     buttArr.emplace_back(screenModeText);
     buttArr.emplace_back(screenModeButton);
     buttArr.emplace_back(backButton);
 }
 
-//int Menu::registerMouseClick(vector<sf::RectangleShape>& buttArr, sf::Vector2f mouse_pos){
-//    for (int i = 0; i < buttArr.size(); i++) {
-//        if (buttArr[i].getGlobalBounds().contains(mouse_pos)) {
-//            return i;
-//        }
-//    }
-//    return -1;
-//}
 
 int Menu::registerMouseClick(vector<Button> &buttArr, sf::Vector2f mouse_pos){
     for (int i = 0; i < buttArr.size(); i++) {
@@ -128,26 +89,10 @@ int Menu::registerMouseClick(vector<Button> &buttArr, sf::Vector2f mouse_pos){
     return -1;
 }
 
-//int Menu::registerMouseMove(vector<sf::RectangleShape>& buttArr, sf::Vector2f mouse_pos, int ind){
-//    bool isMouseOverButton = false; // Indicates if the mouse is over any button
-//    for (int i = 0; i < buttArr.size(); i++) {
-//        if (buttArr[i].getGlobalBounds().contains(mouse_pos)) {
-//            buttArr[i].setFillColor(sf::Color(100,100,100,192));
-//            ind = i;
-//            isMouseOverButton = true;
-//        }
-//    }
-//    if (!isMouseOverButton && ind!=-1) {
-//        buttArr[ind].setFillColor(sf::Color(0,0,0,192));
-//        ind = -1;
-//    }
-//    return ind;
-//}
-
 int Menu::registerMouseMove(vector<Button> &buttArr, sf::Vector2f mouse_pos, int ind){
     bool isMouseOverButton = false; // Indicates if the mouse is over any button
     for (int i = 0; i < buttArr.size(); i++) {
-        if (buttArr[i].getShape().getGlobalBounds().contains(mouse_pos)) {
+        if (buttArr[i].getShape().getGlobalBounds().contains(mouse_pos) && buttArr[i].isActiveButton) {
             buttArr[i].getShape().setFillColor(sf::Color(100,100,100,192));
             ind = i;
             isMouseOverButton = true;
@@ -161,8 +106,6 @@ int Menu::registerMouseMove(vector<Button> &buttArr, sf::Vector2f mouse_pos, int
 }
 
 int Menu::launchMenu() {
-//    vector<sf::RectangleShape> buttArr;
-//    vector<sf::Text> textArr;
     vector<Button> buttons;
     initializeMainMenuButtons(buttons);
     app.drawMenu(buttons);

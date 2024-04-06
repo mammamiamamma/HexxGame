@@ -35,7 +35,7 @@ public:
      */
     [[nodiscard]] bool isBot() const override;
     /**
-     * (overrides the function in Player) returns whether the player is a bot or not
+     * (overrides the method in Player) returns whether the player is a bot or not
      */
 };
 

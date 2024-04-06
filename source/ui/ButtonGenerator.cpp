@@ -4,8 +4,6 @@
 
 #include "ButtonGenerator.h"
 
-
-
 Button ButtonGenerator::getButton(const string& text, const sf::Vector2f size, const sf::Vector2f coords){
     Button button(size, color, coords);
     sf::Text buttonText(font, text, fontSize);
@@ -30,15 +28,25 @@ Button ButtonGenerator::getButton(const string& text, int fontSizeNew, const sf:
     return button;
 }
 
+Button ButtonGenerator::getLinelessButton(const string& text, int fontSizeNew, const sf::Vector2f size){
+    Button button(size, color);
+    sf::Text buttonText(font, text, fontSizeNew);
+    buttonText.setPosition(button.getTextPosition(buttonText));
+    button.addText(buttonText);
+    button.setOutlineColor(sf::Color::Transparent);
+    button.isActiveButton = false;
+    return button;
+}
+
 //Button ButtonGenerator::getButton(const sf::Vector2f size, const sf::Vector2f coords){
 //    Button button(size, color, coords);
 //    return button;
 //}
 
-Button ButtonGenerator::getButton(sf::Vector2<float> size, sf::Vector2<float> coords){
-    Button button(size, color, coords);
-    return button;
-}
+//Button ButtonGenerator::getButton(sf::Vector2<float> size, sf::Vector2<float> coords){
+//    Button button(size, color, coords);
+//    return button;
+//}
 
 Button ButtonGenerator::getButton(sf::Vector2<float> size){
     Button button(size, color);

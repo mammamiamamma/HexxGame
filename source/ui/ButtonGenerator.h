@@ -36,6 +36,7 @@ public:
     Button getButton(const string& text, int fontSizeNew, sf::Vector2f size,  sf::Vector2f coords);
 
     Button getButton(sf::Vector2<float> size, sf::Vector2<float> coords);
+    Button getLinelessButton(const string& text, int fontSizeNew, const sf::Vector2f size);
     Button getButton(sf::Vector2<float> size, sf::Vector2<float> coords, const sf::Color& color);
 
     Button getButton(sf::Vector2<float> size);

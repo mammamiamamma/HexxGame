@@ -61,11 +61,6 @@ public:
      */
     void displayPossibleMoves(std::vector<std::vector<int>>& piecesToLight, HexBoard& hb, int posx, int posy);
     void displayPossibleMoves(std::vector<std::vector<int>>& piecesToLight, HexBoard& hb);
-//    static sf::RectangleShape createButton(const sf::Vector2f& size);
-//    static sf::RectangleShape createButton(const sf::Vector2f& size, const sf::Color& color);
-//    static sf::RectangleShape createButton(const sf::Vector2f& size, bool drawOutline); //obviously change later
-//    static sf::Vector2f getTextPosition(sf::Text &text, const sf::RectangleShape &rectangle);
-//    sf::Text createText(const std::string& textContent, unsigned int characterSize, sf::RectangleShape& targetButton) const;
     sf::Text createText(const string &textContent, unsigned int characterSize) const;
     /**
      * displays the possible moves of a piece
@@ -75,10 +70,8 @@ public:
      * @param indicator whether to highlight the possible moves or not
      */
 
-//    void drawButton(const sf::RectangleShape& b, const sf::Text& text);
     void drawButton(Button& button);
-    void drawButton(vector<Button>& button);
-//    void drawMenu(const std::vector<sf::RectangleShape>& buttArr, const std::vector<sf::Text>& textArr);
+//    void drawButton(vector<Button>& button);
     void drawMenu(std::vector<Button>& buttArr);
     void drawMenu(std::vector<Button> &buttArr,
                   std::vector<Button>& controlButtons,

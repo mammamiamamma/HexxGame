@@ -15,7 +15,6 @@ public:
     Application& app;
     explicit Menu(Application& app);
     int launchMenu();
-
     /**
     * launches the new game menu
     * @return 0 if the game is over
@@ -37,35 +36,23 @@ public:
     */
     int playWithHuman();
 //    int playWithHuman(HexBoard& hb, unique_ptr<Player>& p1, unique_ptr<Player>& p2);
-
     [[nodiscard]] std::vector<sf::Text> getTextForButton(const std::string& filename) const;
-
     static int loadGame();
 //    static int loadGame(HexBoard& hb, unique_ptr<Player>& p1, unique_ptr<Player>& p2);
-
     void initializeMainMenuButtons(vector<Button>& buttArr) const;
     void initializeNewGameButtons(vector<Button>& buttArr) const;
-    void initializeSettingsButtons(vector<Button> &buttArr, bool isFullscreen) const;
-
-    static int registerMouseMove(vector<Button> &buttArr, sf::Vector2f mouse_pos, int ind);
-
-    static int registerMouseClick(vector<Button> &buttArr, sf::Vector2f mouse_pos);
-
+    void initializeSettingsButtons(vector<Button>& buttArr, bool isFullscreen) const;
+    static int registerMouseMove(vector<Button>& buttArr, sf::Vector2f mouse_pos, int ind);
+    static int registerMouseClick(vector<Button>& buttArr, sf::Vector2f mouse_pos);
     void updatePageButtons(int pageNum, int totalPages);
     void ClearControlButtons();
     void ResetMenuState();
-
 //    int startLoadedGame();
 private:
     std::vector<Button> controlButtons;
-//    unique_ptr<Player> p1;
-//    unique_ptr<Player> p2;
-
     bool isFirstPage = true;
     bool isLastPage = false;
     bool isButtonNeeded = false;
-
-
 };
 
 #endif // MENU_H

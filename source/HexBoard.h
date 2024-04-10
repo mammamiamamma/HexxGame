@@ -6,27 +6,13 @@
 #include <string>
 #include <filesystem>
 #include <map>
-//#include "Player.h"
 #include "StoneHelper.h"
 #include "SFML/Graphics.hpp"
 
 using namespace std;
-namespace fs = std::filesystem;
-class Player;
+class Player; //work with stones, not players? refactoring needed
 
 class HexBoard {
-private:
-    std::vector<std::vector<int>> possibleMovesForEven = {
-            {0,-1}, {-1,0}, {-1,1}, {0,1}, {1,1}, {1,0},
-            {0,-2}, {-2,-1}, {-2, 0}, {-2, 1}, {-1, 2}, {0, 2}, {1,2}, {2, 1}, {2, 0}, {2,-1}, {1,-1},
-            {-1,-1},
-    };
-    std::vector<std::vector<int>> possibleMovesForOdd = {
-            {0,-1}, {-1,-1}, {-1,0}, {0,1}, {1,0}, {1,-1},
-            {0,-2}, {-1,-2}, {-2,-1}, {-2,0}, {-2,1}, {0,2}, {2,1}, {2,0}, {2,-1}, {1,-2},
-            {-1,1}, {1,1}
-    };
-
 public:
     static const int BOARD_SIZE = 9;
     static int freeSpaces;
@@ -41,20 +27,10 @@ public:
             { ' ','0','0','0','0','0','0','0',' '},
             { ' ',' ',' ','0','0','0',' ',' ',' '}
     };
-//    vector<vector<char>> board = {
-//            { ' ',' ',' ',' ','0',' ',' ',' ',' '},
-//            { ' ',' ','0','0','0','0','0',' ',' '},
-//            { '0','0','0','0','0','0','0','0','0'},
-//            { '0','0','0','0',' ','0','0','0','0'},
-//            { '0','0','0','0','0','0','0','0','0'},
-//            { '0','0','0',' ','0',' ','0','0','0'},
-//            { '0','0','0','0','0','2','1','2','0'},
-//            { ' ','0','0','0','0','1','X','0',' '},
-//            { ' ',' ',' ','0','0','0',' ',' ',' '}
-//    };
     HexBoard(const HexBoard& other)
             : board(other.board) {}
     HexBoard();
+    ~HexBoard() = default;
 
     void putStone(int y, int x, Player& p);
     /**
@@ -122,9 +98,7 @@ public:
      * @param p Player who makes the move
      * @param opponent Opponent player, used their turn pieces friendly
      */
-//    std::vector<std::vector<int>> createPossibleMoves(int posx, int posy);
     bool isGameValid();
-    void restoreDefaultState();
-    ~HexBoard() = default;
+//    void restoreDefaultState();
 };
 #endif // HEXBOARD_H

@@ -11,7 +11,7 @@ private:
 public:
     Bot();
     explicit Bot(Stone stone);
-    virtual std::vector<int> makeMove(HexBoard &hb);
+    virtual std::vector<int> makeMove(const HexBoard &hb);
     /**
      * initializes the bot's move utilizing information from other methods
      */
@@ -21,12 +21,12 @@ public:
     /**
      * creates all possible moves of the bot's stones
      */
-    virtual std::vector<int> evaluatemoves(HexBoard &hb);
+    virtual std::vector<int> evaluatemoves(const HexBoard &hb);
     /**
      * evaluates the moves of the bot's stones
      */
     static bool isMoveCloser(int posx, int posy, int chosenx, int choseny, int origposx, int origposy);
-    virtual int fakeTPF(int desty, int destx, Player& p, HexBoard &hb);
+    virtual int fakeTPF(int desty, int destx, const Player& p, const HexBoard &hb);
     /**
      * simulates the move to find the most profitable move
      * @param desty destination y coordinate

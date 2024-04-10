@@ -16,7 +16,7 @@ private:
     Bot* bot;
     Application& app;
     string filename;
-    string filePath = "saves/";
+//    string filePath = "saves/";
     Stone currentStone;
     Stone otherStone;
 
@@ -29,8 +29,8 @@ public:
     /**
      * initializes the start of the game
      */
-    int startGame();
-    int startLoadedGame(Stone currStone);
+    void startGame();
+    void startLoadedGame(Stone currStone);
     void saveGame();
 
     int registerClickOnTile(sf::Vector2f mouse_pos);

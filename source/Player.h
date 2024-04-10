@@ -11,21 +11,21 @@ private:
 protected:
     Stone stone;
 public:
-    std::vector<std::vector<int>> possibleMovesForEven = {
+    const std::vector<std::vector<int>> possibleMovesForEven = {
             {0,-1}, {-1,0}, {-1,1}, {0,1}, {1,1}, {1,0},
             {0,-2}, {-2,-1}, {-2, 0}, {-2, 1}, {-1, 2}, {0, 2}, {1,2}, {2, 1}, {2, 0}, {2,-1}, {1,-1},
             {-1,-1},
     };
-    std::vector<std::vector<int>> possibleMovesForOdd = {
+    const std::vector<std::vector<int>> possibleMovesForOdd = {
             {0,-1}, {-1,-1}, {-1,0}, {0,1}, {1,0}, {1,-1},
             {0,-2}, {-1,-2}, {-2,-1}, {-2,0}, {-2,1}, {0,2}, {2,1}, {2,0}, {2,-1}, {1,-2},
             {-1,1}, {1,1}
     };
-    std::vector<std::vector<int>> neighborPosForOdd = {
+    const std::vector<std::vector<int>> neighborPosForOdd = {
             {0,-1},{0,1},{1,0},{-1,0},
             {1,-1},{-1,-1}
     };
-    std::vector<std::vector<int>> neighborPosForEven = {
+    const std::vector<std::vector<int>> neighborPosForEven = {
             {0,-1}, {-1,0}, {-1,1},
             {0,1}, {1,1}, {1,0}
     };
@@ -52,46 +52,9 @@ public:
     /**
      * returns whether the player is a bot or not
      */
-    void findallpositions(HexBoard &hb) {
-        for (int i = 0; i < HexBoard::BOARD_SIZE; i++) {
-            for (int j = 0; j < HexBoard::BOARD_SIZE; j++) {
-                if (hb.board[i][j] == StoneHelper::getName(stone)) {
-                    positions.emplace_back(j, i); // j - x, i - y
-                }
-            }
-        }
-    }
-    void createPossibleMoves(HexBoard &hb) {
-        findallpositions(hb);
-        for (auto& position : positions) {
-            for (auto &possibleMove: position.first % 2 == 0 ? possibleMovesForEven : possibleMovesForOdd) {
-                int newx = position.first + possibleMove[0];
-                int newy = position.second + possibleMove[1];
-                if (newx < 0 || newx >= HexBoard::BOARD_SIZE || newy < 0 || newy >= HexBoard::BOARD_SIZE)
-                    continue;
-                if (hb.board[newy][newx] == ' ')
-                    continue;
-                if (hb.board[newy][newx] == '0') {
-                    std::vector<std::pair<int, int>> temp = {position, {newx, newy}};
-                    positionsandmoves.emplace_back(temp);
-                }
-            }
-        }
-    }
-    std::vector<std::vector<int>> createPossibleMoves(HexBoard &hb, int posx, int posy) {
-        std::vector<std::vector<int>> piecestolight;
-        for (std::vector<int> vec : posx%2==1 ? possibleMovesForOdd : possibleMovesForEven) {
-            int newx = posx + vec[0];
-            int newy = posy + vec[1];
-            if (newx < 0 || newx >= HexBoard::BOARD_SIZE || newy < 0 || newy >= HexBoard::BOARD_SIZE)
-                continue;
-            if (hb.board[newy][newx] == '0') {
-                piecestolight.push_back({ newx, newy });
-            }
-        }
-        return piecestolight;
-    }
-//    void findAllMoves(vector<int>& )
+    void findAllPositions(const HexBoard &hb);
+    void createPossibleMoves(const HexBoard &hb);
+    std::vector<std::vector<int>> createPossibleMoves(const HexBoard &hb, int posx, int posy);
 };
 
 #endif  // PLAYER_H

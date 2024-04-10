@@ -6,7 +6,7 @@ Bot::Bot() : Player() {}
 
 Bot::Bot(Stone stone) : Player(stone) {}
 
-std::vector<int> Bot::makeMove(HexBoard &hb) {
+std::vector<int> Bot::makeMove(const HexBoard &hb) {
     std::vector<int> move = {0, 0, 0, 0};
     if (positionsandmoves.empty()) createPossibleMoves(hb);
     move = evaluatemoves(hb);
@@ -15,7 +15,7 @@ std::vector<int> Bot::makeMove(HexBoard &hb) {
     return move;
 }
 
-std::vector<int> Bot::evaluatemoves(HexBoard &hb) {
+std::vector<int> Bot::evaluatemoves(const HexBoard &hb) {
     std::vector<int> chosenmove;
     int maxprof = 0;
     int origposx = 0;
@@ -83,7 +83,7 @@ std::vector<int> Bot::evaluatemoves(HexBoard &hb) {
     chosenmove.emplace_back(origposx);
     chosenmove.emplace_back(origposy);
     chosenmove.emplace_back(chosenx);
-    chosenmove.emplace_back(choseny);
+    chosenmove.emplace_back(choseny); //implement structs and whatnot
     return chosenmove;
 }
 bool Bot::isMoveCloser(int posx, int posy, int chosenx, int choseny, int origposx, int origposy) {
@@ -92,7 +92,7 @@ bool Bot::isMoveCloser(int posx, int posy, int chosenx, int choseny, int origpos
     return distanceNew < distanceCurrent;
 }
 
-int Bot::fakeTPF(int desty, int destx, Player& p, HexBoard &hb) {
+int Bot::fakeTPF(int desty, int destx, const Player& p, const HexBoard &hb) {
     int profcount = 0;
     if (destx % 2 == 0) {
         for (int i = 0; i < 6; i++) {

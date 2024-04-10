@@ -8,17 +8,7 @@
 #include <iostream>
 #include <fstream>
 
-string totalPagesStr;
-string selectedFile = "nofile";
-
-//-------
-bool isLoadedGame = false;
-HexBoard hb;
-unique_ptr<Player> p1;
-unique_ptr<Player> p2;
-bool pvp = false;
-Stone currStone;
-//-------
+string selectedFile = "nofile"; //can change that
 
 namespace fs = std::filesystem;
 
@@ -79,7 +69,6 @@ void Menu::initializeSettingsButtons(vector<Button>& buttArr, bool isFullscreen)
     buttArr.emplace_back(backButton);
 }
 
-
 int Menu::registerMouseClick(vector<Button> &buttArr, sf::Vector2f mouse_pos){
     for (int i = 0; i < buttArr.size(); i++) {
         if (buttArr[i].getShape().getGlobalBounds().contains(mouse_pos)) {
@@ -111,7 +100,7 @@ int Menu::launchMenu() {
     app.drawMenu(buttons);
     int ind = -1;
     int lastButtonIndex = -1;
-    bool shouldExit = false;
+    bool shouldExit = false; //so if shouldExit is false then the loop below should execute (until it is true) and so the check after loop should make sense
     sf::Event event{};
     while (app.window.isOpen() && !shouldExit) {
         while (app.window.pollEvent(event) && !shouldExit) {
@@ -136,7 +125,10 @@ int Menu::launchMenu() {
             }
         }
     }
-    buttons[lastButtonIndex].getShape().setFillColor(sf::Color(0,0,0,192));
+    if (!app.window.isOpen()) return -1; // checks if the window was closed, maybe change later or maybe its ok
+    if (shouldExit){
+        buttons[lastButtonIndex].getShape().setFillColor(sf::Color(0,0,0,192));
+    }
     return ind;
 }
 
@@ -172,7 +164,9 @@ int Menu::launchSettingsMenu(){
             }
         }
     }
-    buttArr[lastButtonIndex].getShape().setFillColor(sf::Color(0,0,0,192));
+    if (shouldExit) {
+        buttArr[lastButtonIndex].getShape().setFillColor(sf::Color(0, 0, 0, 192));
+    }
     if (ind == 2){
         app.window.clear(); //maybe rethink this whole segment??
         app.changeState();
@@ -196,7 +190,6 @@ vector<string> Menu::getFileNames(){
     } catch (const fs::filesystem_error& err) {
         std::cerr << "Error accessing directory: " << err.what() << std::endl;
     }
-
     return filenames;
 }
 
@@ -310,6 +303,7 @@ int Menu::launchLoadGameMenu(){
     int lastButtonIndex = -1;
     bool isInControlButton = false;
     bool shouldExit = false;
+    string totalPagesStr;
     {
         stringstream ss;
         ss << totalPages+1;
@@ -442,7 +436,7 @@ int Menu::launchNewGameMenu() {
     return ind;
 }
 
-int Menu::playWithBot() {
+void Menu::initializeGame(const bool isLoaded, const bool isPVP){ //isPVP only matters if the game is launched as new, can we change that?
     app.window.clear();
     app.window.display();
     app.window.clear(); //fixed buttons appearing behind the board for me, maybe leave it like this?
@@ -450,80 +444,31 @@ int Menu::playWithBot() {
     vector<Button> tempButton;
     tempButton.emplace_back(exitButton);
 
-    if (!isLoadedGame){
-        hb = HexBoard();
-        p1 = make_unique<Player>(Stone::BLUE);
-        p2 = make_unique<Bot>(Stone::RED);
-        Game game(hb, *p1, *p2, app);
-        game.setControlButtons(tempButton);
-        int res = game.startGame();
-        hb.restoreDefaultState();
+    HexBoard hb = HexBoard();
+    unique_ptr<Player> p1 = make_unique<Player>(Stone::BLUE);
+    unique_ptr<Player> p2;
+    Stone currStone = Stone::BLUE; //default value overriden if game is loaded
 
-        if (res == -1) {
-            return -1;
-        }
-        else return 0;
-    } else {
+    if (!isLoaded){
+        if (isPVP) p2 = make_unique<Player>(Stone::RED);
+        else p2 = make_unique<Bot>(Stone::RED);
         Game game(hb, *p1, *p2, app);
         game.setControlButtons(tempButton);
-        int res = game.startLoadedGame(currStone);
-        hb.restoreDefaultState();
-        if (res == -1) {
-            return -1;
-        }
-        else return 0;
+        game.startGame();
+    } else {
+        loadGame(selectedFile, p1, p2, hb, currStone);
+        Game game(hb, *p1, *p2, app);
+        game.setControlButtons(tempButton);
+        game.startLoadedGame(currStone);
     }
 }
 
-int Menu::playWithHuman() {
-    app.window.clear();
-    app.window.display();
-    app.window.clear(); //fixed buttons appearing behind the board for me, maybe leave it like this?
-    Button exitButton = app.generator.getButton("BACK", 40,{300,100},{50, static_cast<float>(app.WINDOW_SIZE_Y-80-100)});
-    vector<Button> tempButton;
-    tempButton.emplace_back(exitButton);
-
-    if (!isLoadedGame){
-        hb = HexBoard();
-        p1 = make_unique<Player>(Stone::BLUE);
-        p2 = make_unique<Player>(Stone::RED);
-        Game game(hb, *p1, *p2, app);
-        game.setControlButtons(tempButton);
-        int res = game.startGame();
-        hb.restoreDefaultState();
-
-        if (res == -1) {
-            return -1;
-        }
-        else return 0;
-    } else {
-        Game game(hb, *p1, *p2, app);
-        game.setControlButtons(tempButton);
-        int res = game.startLoadedGame(currStone);
-        hb.restoreDefaultState();
-
-        if (res == -1) {
-            return -1;
-        }
-        else return 0;
-    }
-}
-
-int Menu::loadGame() {
-    if (selectedFile == "nofile") return -1; //check in case the load file wasnt chosen
-    isLoadedGame = true;
-
-    std::ifstream inputFile("saves/"+selectedFile);
+void Menu::loadGame(const string& filename, const unique_ptr<Player>& p1, unique_ptr<Player>& p2, HexBoard& hb, Stone& currStone) { //make it accept players? accept filename?
+    std::ifstream inputFile("saves/"+filename);
     if (inputFile.is_open()) {
         string temp;
         inputFile >> temp;
-        if (temp == "Player") {
-            pvp = true;
-            p1 = make_unique<Player>(Stone::BLUE);
-            p2 = make_unique<Player>(Stone::RED);
-        } else {
-            pvp = false;
-            p1 = make_unique<Player>(Stone::BLUE);
+        if (temp == "Bot") {
             p2 = make_unique<Bot>(Stone::RED);
         }
         std::string line;
@@ -571,8 +516,6 @@ int Menu::loadGame() {
     } else {
         std::cerr << "Error: Cannot open the file" << std::endl;
     }
-    if (pvp) return 1;
-    else return 2;
 }
 
 void Menu::ClearControlButtons() {

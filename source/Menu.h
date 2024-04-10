@@ -15,30 +15,14 @@ public:
     Application& app;
     explicit Menu(Application& app);
     int launchMenu();
-    /**
-    * launches the new game menu
-    * @return 0 if the game is over
-    */
     int launchNewGameMenu();
     int launchLoadGameMenu();
     int launchSettingsMenu();
     static std::vector<std::string> getFileNames();
     static std::vector<std::string> split(const std::string& s);
-    /**
-    * the function below initializes the game with a bot
-    * @return 0 if the game is over
-    */
-    int playWithBot();
-//    int playWithBot(HexBoard& hb, unique_ptr<Player>& p1, unique_ptr<Player>& p2);
-    /**
-    * the function below initializes the game with another player
-    * @return 0 if the game is over
-    */
-    int playWithHuman();
-//    int playWithHuman(HexBoard& hb, unique_ptr<Player>& p1, unique_ptr<Player>& p2);
+    void initializeGame(bool isLoaded, bool isPVP);
     [[nodiscard]] std::vector<sf::Text> getTextForButton(const std::string& filename) const;
-    static int loadGame();
-//    static int loadGame(HexBoard& hb, unique_ptr<Player>& p1, unique_ptr<Player>& p2);
+    static void loadGame(const string& filename, const unique_ptr<Player>& p1, unique_ptr<Player>& p2, HexBoard& hb, Stone& currStone);
     void initializeMainMenuButtons(vector<Button>& buttArr) const;
     void initializeNewGameButtons(vector<Button>& buttArr) const;
     void initializeSettingsButtons(vector<Button>& buttArr, bool isFullscreen) const;
@@ -47,7 +31,6 @@ public:
     void updatePageButtons(int pageNum, int totalPages);
     void ClearControlButtons();
     void ResetMenuState();
-//    int startLoadedGame();
 private:
     std::vector<Button> controlButtons;
     bool isFirstPage = true;

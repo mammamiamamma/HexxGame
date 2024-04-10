@@ -5,33 +5,32 @@
 #include "MenuHandler.h"
 
 MenuHandler::MenuHandler(Menu &menu) : menu(menu){}
-
 void MenuHandler::handleMainMenu() {
-    int choice = -1;
+    int choice;
     bool shouldExit = false;
-    while (choice != 3 && !shouldExit) {
-//        menu.drawMainMenu(); // Assuming you have a method like this
+    while (!shouldExit) {
+//        menu.drawMainMenu(); // Maybe I should separate the methods to be smth like this?
         choice = menu.launchMenu();
         switch (choice) {
-            case 0: {
+            case 0: { //new game button
                 menu.app.window.clear();
                 handleNewGameMenu();
                 break;
             }
-            case 1: {
+            case 1: { //load game button
                 handleLoadGameMenu();
                 break;
             }
-            case 2: {
+            case 2: { //settings button
                 handleSettingsMenu();
                 break;
             }
-            case 3: {
+            case 3: //exit button
+            case -1: { //window closed
                 shouldExit = true;
                 break;
             }
             default: {
-                // Handle invalid choice or refresh the menu
                 break;
             }
         }
@@ -39,22 +38,18 @@ void MenuHandler::handleMainMenu() {
 }
 
 void MenuHandler::handleNewGameMenu() {
-    bool shouldExit = false;
-    while (!shouldExit){
-        int choice = menu.launchNewGameMenu();
-        switch (choice){
-            case 0:{
-                menu.playWithHuman();
-                break;
-            }
-            case 1:{
-                menu.playWithBot();
-                break;
-            }
-            default:
-                shouldExit = true;
-                break;
+    int choice = menu.launchNewGameMenu();
+    switch (choice){
+        case 0: {
+            menu.initializeGame(false, true); //introduce enum GAME_MODE?
+            break;
         }
+        case 1: {
+            menu.initializeGame(false, false);
+            break;
+        }
+        default:
+            break;
     }
 }
 
@@ -62,30 +57,15 @@ void MenuHandler::handleLoadGameMenu() {
     int choice = menu.launchLoadGameMenu();
     menu.ClearControlButtons();
     menu.ResetMenuState();
-    switch (choice){
+    switch (choice) {
         case 1: {
-            handleLoadGame();
+            menu.initializeGame(true, false); // isPVP doesnt matter in this case
             break;
         }
         default: return;
 //        case -1: {
 //            break;
 //        }
-    }
-}
-
-void MenuHandler::handleLoadGame() {
-    int choice = Menu::loadGame();
-    switch (choice){
-        case 1: {
-            menu.playWithHuman();
-            break;
-        }
-        case 2: {
-            menu.playWithBot();
-            break;
-        }
-        default: return;
     }
 }
 
@@ -97,6 +77,7 @@ void MenuHandler::handleSettingsMenu() {
             menu.ResetMenuState();
             break;
         }
+        //to be expanded
     }
 }
 

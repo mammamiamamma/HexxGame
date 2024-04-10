@@ -16,7 +16,6 @@ public:
     void handleNewGameMenu();
     void handleLoadGameMenu();
     void handleSettingsMenu();
-    void handleLoadGame();
 };
 
 #endif //HEXXGAME_MENUHANDLER_H

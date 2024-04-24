@@ -17,7 +17,8 @@ public:
     int launchMenu();
     int launchNewGameMenu();
     int launchLoadGameMenu();
-    int launchSettingsMenu();
+//    int launchSettingsMenu();
+    void launchSettingsMenu();
     static std::vector<std::string> getFileNames();
     static std::vector<std::string> split(const std::string& s);
     void initializeGame(bool isLoaded, bool isPVP);

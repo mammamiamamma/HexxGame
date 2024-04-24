@@ -34,7 +34,7 @@ Button ButtonGenerator::getLinelessButton(const string& text, int fontSizeNew, c
     buttonText.setPosition(button.getTextPosition(buttonText));
     button.addText(buttonText);
     button.setOutlineColor(sf::Color::Transparent);
-    button.isActiveButton = false;
+    button.setStatus(false);
     return button;
 }
 

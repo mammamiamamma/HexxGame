@@ -48,9 +48,20 @@ vector<sf::Text>& Button::getText(){
 void Button::addText(sf::Text& text){
     buttonText.emplace_back(text);
 }
-
 void Button::addText(vector<sf::Text>& textArr){
     for (const auto& text : textArr){
         buttonText.emplace_back(text);
     }
+}
+bool Button::checkClick(const sf::Vector2f& mouse_pos) {
+    return button.getGlobalBounds().contains(mouse_pos);
+}
+void Button::setStatus(const bool status){
+    isActiveButton = status;
+}
+bool Button::getStatus() const{ //dont know why it needs to be const
+    return isActiveButton;
+}
+void Button::setBackgroundColor(sf::Color color) {
+    button.setFillColor(color);
 }

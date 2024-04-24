@@ -57,27 +57,30 @@ void MenuHandler::handleLoadGameMenu() {
     int choice = menu.launchLoadGameMenu();
     menu.ClearControlButtons();
     menu.ResetMenuState();
-    switch (choice) {
-        case 1: {
-            menu.initializeGame(true, false); // isPVP doesnt matter in this case
-            break;
-        }
-        default: return;
+    if (choice == 1) menu.initializeGame(true, false);
+//    switch (choice) {
+//        case 1: {
+//            menu.initializeGame(true, false); // isPVP doesnt matter in this case
+//            break;
+//        }
+//        default: return;
 //        case -1: {
 //            break;
 //        }
-    }
+//    }
 }
 
 void MenuHandler::handleSettingsMenu() {
-    int choice = menu.launchSettingsMenu();
-    switch (choice){
-        case -1: {
-            menu.ClearControlButtons();
-            menu.ResetMenuState();
-            break;
-        }
-        //to be expanded
-    }
+    menu.launchSettingsMenu();
+    menu.ClearControlButtons();
+    menu.ResetMenuState();
+//    switch (choice){
+//        case -1: {
+//            menu.ClearControlButtons();
+//            menu.ResetMenuState();
+//            break;
+//        }
+//        //to be expanded
+//    }
 }
 

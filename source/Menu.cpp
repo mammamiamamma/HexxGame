@@ -70,28 +70,30 @@ void Menu::initializeSettingsButtons(vector<Button>& buttArr, bool isFullscreen)
 }
 
 int Menu::registerMouseClick(vector<Button> &buttArr, sf::Vector2f mouse_pos){
-    for (int i = 0; i < buttArr.size(); i++) {
-        if (buttArr[i].getShape().getGlobalBounds().contains(mouse_pos)) {
-            return i;
+    int index = 0;
+    for (auto& button : buttArr) {
+        if (button.checkClick(mouse_pos) && button.getStatus()) {
+            return index;
         }
+        index++;
     }
     return -1;
 }
 
-int Menu::registerMouseMove(vector<Button> &buttArr, sf::Vector2f mouse_pos, int ind){
+int Menu::registerMouseMove(vector<Button> &buttArr, sf::Vector2f mouse_pos, int lastButtonIndex){
     bool isMouseOverButton = false; // Indicates if the mouse is over any button
     for (int i = 0; i < buttArr.size(); i++) {
-        if (buttArr[i].getShape().getGlobalBounds().contains(mouse_pos) && buttArr[i].isActiveButton) {
-            buttArr[i].getShape().setFillColor(sf::Color(100,100,100,192));
-            ind = i;
+        if (buttArr[i].checkClick(mouse_pos) && buttArr[i].getStatus()) {
+            buttArr[i].setBackgroundColor(sf::Color(100,100,100,192));
+            lastButtonIndex = i;
             isMouseOverButton = true;
         }
     }
-    if (!isMouseOverButton && ind!=-1) {
-        buttArr[ind].getShape().setFillColor(sf::Color(0,0,0,192));
-        ind = -1;
+    if (!isMouseOverButton && lastButtonIndex!=-1) {
+        buttArr[lastButtonIndex].setBackgroundColor(sf::Color(0,0,0,192));
+        lastButtonIndex = -1;
     }
-    return ind;
+    return lastButtonIndex;
 }
 
 int Menu::launchMenu() {
@@ -113,8 +115,10 @@ int Menu::launchMenu() {
                     break;
                 }
                 case sf::Event::MouseMoved: {
+                    int temp = lastButtonIndex;
                     lastButtonIndex = registerMouseMove(buttons, app.window.mapPixelToCoords(sf::Mouse::getPosition(app.window)), lastButtonIndex);
-                    app.drawMenu(buttons);
+                    if (temp != lastButtonIndex) app.drawMenu(buttons); //maybe instead of redrawing the menu each time a mouse moves make it so it only redraws if the methods above finds a change in indexes or smth
+                    break; //check to see if it works even
                 }
                 case sf::Event::Resized: {
                     app.drawMenu(buttons);
@@ -127,55 +131,104 @@ int Menu::launchMenu() {
     }
     if (!app.window.isOpen()) return -1; // checks if the window was closed, maybe change later or maybe its ok
     if (shouldExit){
-        buttons[lastButtonIndex].getShape().setFillColor(sf::Color(0,0,0,192));
+        buttons[lastButtonIndex].setBackgroundColor(sf::Color(0,0,0,192));
     }
     return ind;
 }
 
-int Menu::launchSettingsMenu(){
-    vector<Button> buttArr;
-    restart:
-    initializeSettingsButtons(buttArr, app.isFullscreen);
-    app.drawMenu(buttArr);
-    int ind = -1;
-    int lastButtonIndex = -1;
-    bool shouldExit = false;
-    sf::Event event{};
-    while (app.window.isOpen() && !shouldExit) {
-        while (app.window.pollEvent(event) && !shouldExit) {
-            switch (event.type) {
-                case sf::Event::MouseButtonPressed: {
-                    ind = registerMouseClick(buttArr, app.window.mapPixelToCoords(sf::Mouse::getPosition(app.window)));
-                    if (ind!=-1 && ind!=0 && ind!=1){ //dont know how foolproof it is but it works for now, need to find another way to ignore these "buttons"
-                        shouldExit = true;
+void Menu::launchSettingsMenu(){
+    vector<Button> buttArr; //maybe try to manage one set of buttons and clear it before moving to other menus?
+    bool shouldRestart;
+    do {
+        shouldRestart = false;
+        initializeSettingsButtons(buttArr, app.isFullscreen);
+        app.drawMenu(buttArr);
+        int ind = -1;
+        int lastButtonIndex = -1;
+        bool shouldExit = false;
+        sf::Event event{};
+
+        while (app.window.isOpen() && !shouldExit) {
+            while (app.window.pollEvent(event) && !shouldExit) {
+                switch (event.type) {
+                    case sf::Event::MouseButtonPressed: {
+                        const sf::Vector2f translated_pos = app.window.mapPixelToCoords(sf::Mouse::getPosition(app.window));
+                        ind = registerMouseClick(buttArr, translated_pos);
+                        if (ind != -1) {
+                            shouldExit = true;
+                        }
+                        break;
                     }
-                    break;
+                    case sf::Event::MouseMoved: {
+                        const sf::Vector2f translated_pos = app.window.mapPixelToCoords(sf::Mouse::getPosition(app.window));
+                        lastButtonIndex = registerMouseMove(buttArr, translated_pos, lastButtonIndex);
+                        app.drawMenu(buttArr);
+                        break;
+                    }
+                    case sf::Event::Resized: {
+                        app.drawMenu(buttArr);
+                        break;
+                    }
+                    case sf::Event::Closed:
+                        return;
+                    default:
+                        break;
                 }
-                case sf::Event::MouseMoved: {
-                    lastButtonIndex = registerMouseMove(buttArr, app.window.mapPixelToCoords(sf::Mouse::getPosition(app.window)), lastButtonIndex);
-                    app.drawMenu(buttArr);
-                }
-                case sf::Event::Resized: {
-                    app.drawMenu(buttArr);
-                    break;
-                }
-                case sf::Event::Closed: return -1;
-                default: break;
             }
         }
-    }
-    if (shouldExit) {
-        buttArr[lastButtonIndex].getShape().setFillColor(sf::Color(0, 0, 0, 192));
-    }
-    if (ind == 2){
-        app.window.clear(); //maybe rethink this whole segment??
-        app.changeState();
-        buttArr.clear(); //maybe not??
-        goto restart;
-    } else {
-        return -1;
-    }
+        buttArr[lastButtonIndex].setBackgroundColor(sf::Color(0, 0, 0, 192));
+        if (ind == 2) {
+            app.window.clear();
+            app.changeState();
+            buttArr.clear();
+            shouldRestart = true;
+        } //here we work with the chosen setting and change the app accordingly, we only got one setting rn
+    } while (shouldRestart);
 }
+//int Menu::launchSettingsMenu(){
+//    vector<Button> buttArr;
+//    restart:
+//    initializeSettingsButtons(buttArr, app.isFullscreen);
+//    app.drawMenu(buttArr);
+//    int ind = -1;
+//    int lastButtonIndex = -1;
+//    bool shouldExit = false;
+//    sf::Event event{};
+//    while (app.window.isOpen() && !shouldExit) {
+//        while (app.window.pollEvent(event) && !shouldExit) {
+//            switch (event.type) {
+//                case sf::Event::MouseButtonPressed: {
+//                    ind = registerMouseClick(buttArr, app.window.mapPixelToCoords(sf::Mouse::getPosition(app.window)));
+//                    if (ind!=-1 && ind!=0 && ind!=1){ //dont know how foolproof it is but it works for now, need to find another way to ignore these "buttons"
+//                        shouldExit = true;
+//                    }
+//                    break;
+//                }
+//                case sf::Event::MouseMoved: {
+//                    lastButtonIndex = registerMouseMove(buttArr, app.window.mapPixelToCoords(sf::Mouse::getPosition(app.window)), lastButtonIndex);
+//                    app.drawMenu(buttArr);
+//                }
+//                case sf::Event::Resized: {
+//                    app.drawMenu(buttArr);
+//                    break;
+//                }
+//                case sf::Event::Closed: return -1;
+//                default: break;
+//            }
+//        }
+//    }
+//    if (shouldExit) {
+//        buttArr[lastButtonIndex].getShape().setFillColor(sf::Color(0, 0, 0, 192));
+//    }
+//    if (ind == 2){
+//        app.window.clear(); //maybe rethink this whole segment??
+//        app.changeState();
+//        buttArr.clear(); //maybe not??
+//        goto restart;
+//    } else {
+//        return -1;
+//    }
+//}
 
 vector<string> Menu::getFileNames(){
     vector<string> filenames;
@@ -285,7 +338,6 @@ int Menu::launchLoadGameMenu(){
         button.addText(buttonText);
         buttArr.emplace_back(button);
     }
-
     controlButtons.emplace_back(app.generator.getButton("BACK", 40,{300,100},{50, static_cast<float>(app.WINDOW_SIZE_Y-80-100)}));
 
     if (filenames.size()>5){
@@ -313,24 +365,19 @@ int Menu::launchLoadGameMenu(){
     while (app.window.isOpen() && !shouldExit){
         while (app.window.pollEvent(event) && !shouldExit){
             switch (event.type){
-                case sf::Event::Closed:{
-                    std::exit(1);
-                }
                 case sf::Event::MouseButtonPressed: {
-                    int n = -1;
-                    for (int i = 0; i<3; i++){
-                        if (controlButtons[i].getShape().getGlobalBounds().contains(app.window.mapPixelToCoords(sf::Mouse::getPosition(app.window)))) {
-                            n = i;
-                        }
-                    }
-                    if (n!=-1){
-                        if (n==0) return -1; // back to main menu
-                        else if (n==1) pageNum--;
+                    const sf::Vector2f translated_pos = app.window.mapPixelToCoords(sf::Mouse::getPosition(app.window));
+                    int controlButtonInd = registerMouseClick(controlButtons, translated_pos);
+                    if (controlButtonInd != -1){
+                        if (controlButtonInd == 0) return -1; // back to main menu
+                        else if (controlButtonInd == 1) pageNum--;
                         else pageNum++;
                         updatePageButtons(pageNum, totalPages);
+                        app.drawMenu(buttArr, controlButtons, pageNum, totalPagesStr, isFirstPage, isLastPage, isButtonNeeded);
+                        break;
                     }
                     for (int i = 1 + pageNum*5, j = i; i<j+5 && i<buttArr.size(); i++){
-                        if (buttArr[i].getShape().getGlobalBounds().contains(app.window.mapPixelToCoords(sf::Mouse::getPosition(app.window)))) {
+                        if (buttArr[i].checkClick(translated_pos)) {
                             selectedFile = filenames[i-1];
                             shouldExit = true;
                             break;
@@ -340,38 +387,38 @@ int Menu::launchLoadGameMenu(){
                     break;
                 }
                 case sf::Event::MouseMoved: {
+                    const sf::Vector2f translated_pos = app.window.mapPixelToCoords(sf::Mouse::getPosition(app.window));
                     if (lastButtonIndex != -1) {
-                        if (!isInControlButton && !buttArr[lastButtonIndex].getShape().getGlobalBounds().contains(
-                                app.window.mapPixelToCoords(sf::Mouse::getPosition(app.window)))) {
-                            buttArr[lastButtonIndex].getShape().setFillColor(sf::Color(0, 0, 0, 192));
+                        if (!isInControlButton && !buttArr[lastButtonIndex].checkClick(translated_pos)) {
+                            buttArr[lastButtonIndex].setBackgroundColor(sf::Color(0, 0, 0, 192));
                             lastButtonIndex = -1;
-                        } else if (isInControlButton && !controlButtons[lastButtonIndex].getShape().getGlobalBounds().contains(
-                                app.window.mapPixelToCoords(sf::Mouse::getPosition(app.window)))) {
-                            controlButtons[lastButtonIndex].getShape().setFillColor(sf::Color(0, 0, 0, 192));
+                        } else if (isInControlButton && !controlButtons[lastButtonIndex].checkClick(translated_pos)) {
+                            controlButtons[lastButtonIndex].setBackgroundColor(sf::Color(0, 0, 0, 192));
                             isInControlButton = false;
                             lastButtonIndex = -1;
                         }
                     }
                     for (int i = 1 + pageNum * 5, j = i; i < j + 5 && i < buttArr.size(); i++) {
-                        if (buttArr[i].getShape().getGlobalBounds().contains(
-                                app.window.mapPixelToCoords(sf::Mouse::getPosition(app.window)))) {
-                            buttArr[i].getShape().setFillColor(sf::Color(100, 100, 100, 192));
+                        if (buttArr[i].checkClick(translated_pos)) {
+                            buttArr[i].setBackgroundColor(sf::Color(100, 100, 100, 192));
                             lastButtonIndex = i;
                             goto skipisInButton;
                         }
                     }
                     for (int i = 0; i < controlButtons.size(); i++) {
-                        if (controlButtons[i].getShape().getGlobalBounds().contains(
-                                app.window.mapPixelToCoords(sf::Mouse::getPosition(app.window)))) {
-                            controlButtons[i].getShape().setFillColor(sf::Color(100, 100, 100, 192));
+                        if (controlButtons[i].checkClick(translated_pos)) {
+                            controlButtons[i].setBackgroundColor(sf::Color(100, 100, 100, 192));
                             lastButtonIndex = i;
                             app.drawMenu(buttArr, controlButtons, pageNum, totalPagesStr, isFirstPage, isLastPage, isButtonNeeded);
                             isInControlButton = true;
                         }
                     }
-                    skipisInButton:
+                    skipisInButton: //gotta go with loops
                     app.drawMenu(buttArr, controlButtons, pageNum, totalPagesStr, isFirstPage, isLastPage, isButtonNeeded);
                     break;
+                }
+                case sf::Event::Closed:{
+                    return -1;
                 }
                 default: break;
             }
@@ -404,12 +451,12 @@ int Menu::launchNewGameMenu() {
     int lastButtonIndex = -1;
     bool shouldExit = false;
     sf::Event event{};
-    sf::Vector2f translated_pos;
     while (app.window.isOpen() && !shouldExit){
         while (app.window.pollEvent(event) && !shouldExit) {
             switch (event.type) {
                 case sf::Event::MouseButtonPressed:{
-                    ind = registerMouseClick(buttArr, app.window.mapPixelToCoords(sf::Mouse::getPosition(app.window)));
+                    const sf::Vector2f translated_pos = app.window.mapPixelToCoords(sf::Mouse::getPosition(app.window));
+                    ind = registerMouseClick(buttArr, translated_pos);
                     if (ind!=-1){
                         shouldExit = true;
                     }
@@ -425,8 +472,10 @@ int Menu::launchNewGameMenu() {
                     break;
                 }
                 case sf::Event::MouseMoved: {
-                    lastButtonIndex = registerMouseMove(buttArr, app.window.mapPixelToCoords(sf::Mouse::getPosition(app.window)), lastButtonIndex);
+                    const sf::Vector2f translated_pos = app.window.mapPixelToCoords(sf::Mouse::getPosition(app.window));
+                    lastButtonIndex = registerMouseMove(buttArr, translated_pos, lastButtonIndex);
                     app.drawMenu(buttArr);
+                    break;
                 }
                 default: break;
             }

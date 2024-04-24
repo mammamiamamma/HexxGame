@@ -30,6 +30,9 @@ CTestTestfile.cmake
 *.pdb
 *.opendb
 
+# logs
+.log
+
 # Backup & Temp files
 *~
 *.swp

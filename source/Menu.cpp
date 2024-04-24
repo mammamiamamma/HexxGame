@@ -342,8 +342,10 @@ int Menu::launchLoadGameMenu(){
 
     if (filenames.size()>5){
         isButtonNeeded = true;
-        Button prevButton = app.generator.getButton("PREV PAGE", 30,{300,100},{static_cast<float>(app.WINDOW_SIZE_X/2-700), app.WINDOW_SIZE_Y/2-prevButton.getShape().getSize().y/2});
-        Button nextButton = app.generator.getButton("NEXT PAGE", 30,{300,100},{static_cast<float>(app.WINDOW_SIZE_X/2+400), app.WINDOW_SIZE_Y/2-prevButton.getShape().getSize().y/2});
+        Button prevButton = app.generator.getButton("PREV PAGE", 30,{300,100});
+        prevButton.setPosition({static_cast<float>(app.WINDOW_SIZE_X/2-700), app.WINDOW_SIZE_Y/2-prevButton.getShape().getSize().y/2});
+        Button nextButton = app.generator.getButton("NEXT PAGE", 30,{300,100});
+        nextButton.setPosition({static_cast<float>(app.WINDOW_SIZE_X/2+400), app.WINDOW_SIZE_Y/2-nextButton.getShape().getSize().y/2});
 
         controlButtons.emplace_back(prevButton);
         controlButtons.emplace_back(nextButton);

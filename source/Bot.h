@@ -26,7 +26,7 @@ public:
      * evaluates the moves of the bot's stones
      */
     static bool isMoveCloser(int posx, int posy, int chosenx, int choseny, int origposx, int origposy);
-    virtual int fakeTPF(int desty, int destx, const Player& p, const HexBoard &hb);
+    virtual int fakeTPF(int desty, int destx, const HexBoard &hb);
     /**
      * simulates the move to find the most profitable move
      * @param desty destination y coordinate

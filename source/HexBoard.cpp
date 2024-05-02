@@ -88,31 +88,16 @@ bool HexBoard::makeAMove(int posy, int posx, int desty, int destx, Player& p, Pl
 }
 
 void HexBoard::turnPiecesFriendly(int desty, int destx, Player& p, Player& opponent) {
-    if (destx % 2 == 0) {
-        for (auto & neighborPo : p.neighborPosForEven) {
-            int newy = desty + neighborPo[1];
-            int newx = destx + neighborPo[0];
-            if (newy < 0 || newy >= BOARD_SIZE || newx < 0 || newx >= BOARD_SIZE) continue;
-            if (board[newy][newx] == ' ') continue;
-            if (board[newy][newx] == '0') continue;
-            if (board[newy][newx] != StoneHelper::getName(p.getStone())) {
-                board[newy][newx] = StoneHelper::getName(p.getStone());
-                p.setScore(p.getScore() + 1);
-                opponent.setScore(opponent.getScore() - 1);
-            }
-        }
-    } else {
-        for (auto & neighborPo : p.neighborPosForOdd) {
-            int newy = desty + neighborPo[1];
-            int newx = destx + neighborPo[0];
-            if (newy < 0 || newy >= BOARD_SIZE || newx < 0 || newx >= BOARD_SIZE) continue;
-            if (board[newy][newx] == ' ') continue;
-            if (board[newy][newx] == '0') continue;
-            if (board[newy][newx] != StoneHelper::getName(p.getStone())) {
-                board[newy][newx] = StoneHelper::getName(p.getStone());
-                p.setScore(p.getScore() + 1);
-                opponent.setScore(opponent.getScore() - 1);
-            }
+    for (vector<int> neighborPos : destx%2==1 ? p.neighborPosForOdd : p.neighborPosForEven) {
+        int newy = desty + neighborPos[1];
+        int newx = destx + neighborPos[0];
+        if (newy < 0 || newy >= HexBoard::BOARD_SIZE || newx < 0 || newx >= HexBoard::BOARD_SIZE) continue;
+        if (board[newy][newx] == ' ') continue;
+        if (board[newy][newx] == '0') continue;
+        if (board[newy][newx] != StoneHelper::getName(p.getStone())) {
+            board[newy][newx] = StoneHelper::getName(p.getStone());
+            p.setScore(p.getScore() + 1);
+            opponent.setScore(opponent.getScore() - 1);
         }
     }
 }

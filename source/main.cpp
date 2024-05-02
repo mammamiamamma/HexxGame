@@ -26,13 +26,11 @@ int main() {
     window.create(sf::VideoMode({1920, 1080}), "Hexx Game", sf::Style::Titlebar | sf::Style::Close | sf::Style::Resize, sf::State::Windowed, conSettings);
     sf::RectangleShape background({static_cast<float>(window.getSize().x), static_cast<float>(window.getSize().y)});
     background.setTexture(&texture);
-
     Application app(window, background, font, conSettings);
 
     Menu menu(app);
     MenuHandler menuHandler(menu);
     menuHandler.handleMainMenu();
-
     return 0;
 }
 

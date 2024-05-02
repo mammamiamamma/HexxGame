@@ -13,11 +13,11 @@ Makefile
 CTestTestfile.cmake
 
 # If you use other build systems, you might want to ignore their specific files, e.g.:
-# build/
-# bin/
-# *.o
+ build/
+ bin/
+ *.o
 # *.so
-# *.a
+ *.a
 
 # Compiled Output
 *.out

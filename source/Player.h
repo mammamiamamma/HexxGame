@@ -8,7 +8,6 @@
 class Player {
 private:
     int score = 3;
-protected:
     Stone stone;
 public:
     const std::vector<std::vector<int>> possibleMovesForEven = {

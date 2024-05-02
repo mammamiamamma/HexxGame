@@ -108,15 +108,17 @@ int Menu::launchMenu() {
         while (app.window.pollEvent(event) && !shouldExit) {
             switch (event.type) {
                 case sf::Event::MouseButtonPressed: {
-                    ind = registerMouseClick(buttons, app.window.mapPixelToCoords(sf::Mouse::getPosition(app.window)));
+                    const sf::Vector2f translated_pos = app.window.mapPixelToCoords(sf::Mouse::getPosition(app.window));
+                    ind = registerMouseClick(buttons, translated_pos);
                     if (ind!=-1){
                         shouldExit = true;
                     }
                     break;
                 }
                 case sf::Event::MouseMoved: {
+                    const sf::Vector2f translated_pos = app.window.mapPixelToCoords(sf::Mouse::getPosition(app.window));
                     int temp = lastButtonIndex;
-                    lastButtonIndex = registerMouseMove(buttons, app.window.mapPixelToCoords(sf::Mouse::getPosition(app.window)), lastButtonIndex);
+                    lastButtonIndex = registerMouseMove(buttons, translated_pos, lastButtonIndex);
                     if (temp != lastButtonIndex) app.drawMenu(buttons); //maybe instead of redrawing the menu each time a mouse moves make it so it only redraws if the methods above finds a change in indexes or smth
                     break; //check to see if it works even
                 }
@@ -161,8 +163,9 @@ void Menu::launchSettingsMenu(){
                     }
                     case sf::Event::MouseMoved: {
                         const sf::Vector2f translated_pos = app.window.mapPixelToCoords(sf::Mouse::getPosition(app.window));
+                        int temp = lastButtonIndex;
                         lastButtonIndex = registerMouseMove(buttArr, translated_pos, lastButtonIndex);
-                        app.drawMenu(buttArr);
+                        if (temp != lastButtonIndex) app.drawMenu(buttArr);
                         break;
                     }
                     case sf::Event::Resized: {
@@ -317,22 +320,25 @@ vector<sf::Text> Menu::getTextForButton(const string& filename) const{
 int Menu::launchLoadGameMenu(){
     vector<string> filenames = getFileNames();
     vector<Button> buttArr;
+    buttArr.reserve(filenames.size() + 1); // +1 for the saveWindow button
 
     Button saveWindow = app.generator.getButton({740,870});
     saveWindow.setPosition({app.WINDOW_SIZE_X/2-saveWindow.getShape().getSize().x/2, 130});
     saveWindow.setOutlineColor(sf::Color::Cyan);
 
     buttArr.emplace_back(saveWindow);
-    for (int i = 0; i<filenames.size(); i++){
+    for (const auto& filename : filenames){
         Button button = app.generator.getButton({700, 150});
-        button.setPosition({static_cast<float>(app.WINDOW_SIZE_X / 2 - button.getShape().getSize().x / 2), static_cast<float>(150+ 170*(i%5))});
+        auto xPosition = static_cast<float>(app.WINDOW_SIZE_X / 2 - button.getShape().getSize().x / 2);
+        auto yPosition = static_cast<float>(150 + 170 * ((&filename - &filenames[0]) % 5)); //pointer arithmetics! (index of file in filenames)
+        button.setPosition({xPosition, yPosition});
 
-        vector<sf::Text> buttonText = getTextForButton(filenames[i]);
+        vector<sf::Text> buttonText = getTextForButton(filename);
         buttonText[0].setPosition({button.getShape().getPosition().x+10, button.getShape().getPosition().y+10});
         buttonText[1].setPosition({button.getShape().getPosition().x+10, button.getShape().getPosition().y+button.getShape().getSize().y/2-20});
         buttonText[2].setPosition({button.getShape().getPosition().x+200, button.getShape().getPosition().y+button.getShape().getSize().y/2-20});
         buttonText[3].setPosition({button.getShape().getPosition().x+10, button.getShape().getPosition().y+button.getShape().getSize().y/2+20});
-        buttonText[5].setPosition({button.getShape().getPosition().x+255, button.getShape().getPosition().y+button.getShape().getSize().y/2+20});
+        buttonText[5].setPosition({button.getShape().getPosition().x+255, button.getShape().getPosition().y+button.getShape().getSize().y/2+20}); //dont mind the order
         buttonText[4].setPosition({button.getShape().getPosition().x+400, button.getShape().getPosition().y+button.getShape().getSize().y/2-20});
 
         button.addText(buttonText);
@@ -353,7 +359,7 @@ int Menu::launchLoadGameMenu(){
 
     int pageNum = 0;
     sf::Event event{};
-    int totalPages = (int)filenames.size()/5;
+    int totalPages = (int)filenames.size() % 5 == 0 ? (int)filenames.size()/5-1 : (int)filenames.size()/5;
     int lastButtonIndex = -1;
     bool isInControlButton = false;
     bool shouldExit = false;
@@ -390,6 +396,9 @@ int Menu::launchLoadGameMenu(){
                 }
                 case sf::Event::MouseMoved: {
                     const sf::Vector2f translated_pos = app.window.mapPixelToCoords(sf::Mouse::getPosition(app.window));
+                    int controlButtonInd;
+                    int tempForButtArr = lastButtonIndex; //two variables because im using two separate arrays and need to check if there are changes if one or another
+                    int tempForContrButt = lastButtonIndex;
                     if (lastButtonIndex != -1) {
                         if (!isInControlButton && !buttArr[lastButtonIndex].checkClick(translated_pos)) {
                             buttArr[lastButtonIndex].setBackgroundColor(sf::Color(0, 0, 0, 192));
@@ -400,23 +409,24 @@ int Menu::launchLoadGameMenu(){
                             lastButtonIndex = -1;
                         }
                     }
-                    for (int i = 1 + pageNum * 5, j = i; i < j + 5 && i < buttArr.size(); i++) {
-                        if (buttArr[i].checkClick(translated_pos)) {
-                            buttArr[i].setBackgroundColor(sf::Color(100, 100, 100, 192));
-                            lastButtonIndex = i;
+                    for (int startInd = 1 + pageNum * 5, stopInd = startInd; startInd < stopInd + 5 && startInd < buttArr.size(); startInd++) {
+                        if (buttArr[startInd].checkClick(translated_pos) && buttArr[startInd].getStatus()) {
+                            buttArr[startInd].setBackgroundColor(sf::Color(100, 100, 100, 192));
+                            lastButtonIndex = startInd;
                             goto skipisInButton;
                         }
                     }
-                    for (int i = 0; i < controlButtons.size(); i++) {
-                        if (controlButtons[i].checkClick(translated_pos)) {
-                            controlButtons[i].setBackgroundColor(sf::Color(100, 100, 100, 192));
-                            lastButtonIndex = i;
-                            app.drawMenu(buttArr, controlButtons, pageNum, totalPagesStr, isFirstPage, isLastPage, isButtonNeeded);
-                            isInControlButton = true;
-                        }
+                    controlButtonInd = registerMouseClick(controlButtons, translated_pos);
+                    if (controlButtonInd != -1){
+                        controlButtons[controlButtonInd].setBackgroundColor(sf::Color(100, 100, 100, 192));
+                        lastButtonIndex = controlButtonInd;
+                        app.drawMenu(buttArr, controlButtons, pageNum, totalPagesStr, isFirstPage, isLastPage, isButtonNeeded);
+                        isInControlButton = true;
                     }
                     skipisInButton: //gotta go with loops
-                    app.drawMenu(buttArr, controlButtons, pageNum, totalPagesStr, isFirstPage, isLastPage, isButtonNeeded);
+                    if (tempForButtArr != lastButtonIndex || tempForContrButt != lastButtonIndex) { //checking if there's an update
+                        app.drawMenu(buttArr, controlButtons, pageNum, totalPagesStr, isFirstPage, isLastPage, isButtonNeeded);
+                    }
                     break;
                 }
                 case sf::Event::Closed:{
@@ -464,6 +474,13 @@ int Menu::launchNewGameMenu() {
                     }
                     break;
                 }
+                case sf::Event::MouseMoved: {
+                    const sf::Vector2f translated_pos = app.window.mapPixelToCoords(sf::Mouse::getPosition(app.window));
+                    int temp = lastButtonIndex;
+                    lastButtonIndex = registerMouseMove(buttArr, translated_pos, lastButtonIndex);
+                    if (temp != lastButtonIndex) app.drawMenu(buttArr);
+                    break;
+                }
                 case sf::Event::Resized:{
                     app.drawMenu(buttArr);
                     break;
@@ -471,12 +488,6 @@ int Menu::launchNewGameMenu() {
                 case sf::Event::Closed:{
                     shouldExit = true;
                     app.window.close();
-                    break;
-                }
-                case sf::Event::MouseMoved: {
-                    const sf::Vector2f translated_pos = app.window.mapPixelToCoords(sf::Mouse::getPosition(app.window));
-                    lastButtonIndex = registerMouseMove(buttArr, translated_pos, lastButtonIndex);
-                    app.drawMenu(buttArr);
                     break;
                 }
                 default: break;
@@ -487,7 +498,7 @@ int Menu::launchNewGameMenu() {
     return ind;
 }
 
-void Menu::initializeGame(const bool isLoaded, const bool isPVP){ //isPVP only matters if the game is launched as new, can we change that?
+void Menu::initializeGame(const bool isLoaded, const bool isPVP) { //isPVP only matters if the game is launched as new, can we change that?
     app.window.clear();
     app.window.display();
     app.window.clear(); //fixed buttons appearing behind the board for me, maybe leave it like this?

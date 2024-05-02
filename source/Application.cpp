@@ -111,10 +111,12 @@ void Application::drawMenu(
         bool isLastPage,
         bool isButtonNeeded
         ) {
-    stringstream ss;
-    ss << pageNum+1;
     string pageStr;
-    ss >> pageStr;
+    {
+        stringstream ss;
+        ss << pageNum+1;
+        ss >> pageStr;
+    }
     window.clear();
     window.draw(background);
     window.draw(buttArr[0].getShape());
@@ -126,7 +128,7 @@ void Application::drawMenu(
         if (!isLastPage) drawButton(controlButtons[2]);
         if (!isFirstPage) drawButton(controlButtons[1]);
     }
-    sf::Text savefilestext(font, "SAVE FILES", 30);
+    sf::Text savefilestext(font, "SAVE FILES", 30); //should not be created each time the window is drawn, obviously
     savefilestext.setPosition({static_cast<float>(WINDOW_SIZE_X/2-127.5),80});
     window.draw(savefilestext);
     sf::Text pageIndexText(font, "PAGE "+pageStr + " OF " + totalPagesStr, 30);
